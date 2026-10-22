@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paramètres du Profil - {{ user.name }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="settings-card glass">
+            <h2>Paramètres Métaboliques</h2>
+            <p>Veuillez remplir ces informations pour que FormiFit puisse calculer vos besoins journaliers.</p>
+            
+            <form method="POST" action="{{ url_for('settings', username=user.id) }}">
+                <div class="form-group">
+                    <label for="sex">Sexe</label>
+                    <select class="form-control" id="sex" name="sex" required>
+                        <option value="" disabled selected>Sélectionnez votre sexe</option>
+                        <option value="homme" {% if user.sex == 'homme' %}selected{% endif %}>Homme</option>
+                        <option value="femme" {% if user.sex == 'femme' %}selected{% endif %}>Femme</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="age">Âge (années)</label>
+                    <input type="number" class="form-control" id="age" name="age" value="{{ user.age or '' }}" placeholder="Ex: 25" required min="1" max="120">
+                </div>
+
+                <div class="form-group">
+                    <label for="weight">Poids (kg)</label>
+                    <input type="number" step="0.1" class="form-control" id="weight" name="weight" value="{{ user.weight or '' }}" placeholder="Ex: 70.5" required min="20" max="300">
+                </div>
+
+                <div class="form-group">
+                    <label for="height">Taille (cm)</label>
+                    <input type="number" class="form-control" id="height" name="height" value="{{ user.height or '' }}" placeholder="Ex: 175" required min="50" max="250">
+                </div>
+
+                <div class="form-group">
+                    <label for="body_fat">Masse graisseuse (%) - Optionnel</label>
+                    <input type="number" step="0.1" class="form-control" id="body_fat" name="body_fat" value="{{ user.body_fat or '' }}" placeholder="Ex: 15.5" min="2" max="60">
+                </div>
+
+                <div class="form-group">
+                    <label for="target_weight">Poids Cible (kg) - Optionnel (Pour une sèche)</label>
+                    <input type="number" step="0.1" class="form-control" id="target_weight" name="target_weight" value="{{ user.target_weight or '' }}" placeholder="Ex: 65.0" min="20" max="300">
+                </div>
+
+                <div class="form-group">
+                    <label for="cut_timeframe">Délai souhaité pour la sèche</label>
+                    <select class="form-control" id="cut_timeframe" name="cut_timeframe">
+                        <option value="" disabled selected>Sélectionnez un délai</option>
+                        <option value="7" {% if user.cut_timeframe == '7' %}selected{% endif %}>1 semaine (Très agressif)</option>
+                        <option value="14" {% if user.cut_timeframe == '14' %}selected{% endif %}>2 semaines (Agressif)</option>
+                        <option value="30" {% if user.cut_timeframe == '30' %}selected{% endif %}>1 mois</option>
+                        <option value="90" {% if user.cut_timeframe == '90' %}selected{% endif %}>3 mois</option>
+                        <option value="180" {% if user.cut_timeframe == '180' %}selected{% endif %}>6 mois</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn-primary">Enregistrer mes paramètres</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="description" content="FormiGuessUp - Le jeu de devinettes en équipe ! Devinez le mot affiché sur votre front grâce aux indices de vos amis.">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#0f0c29">
+    <title>FormiGuessUp</title>
+    <link rel="manifest" href="/manifest.json">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="bg-particles" id="bgParticles"></div>
+
+    <div class="app-container" id="appContainer">
+
+        <!-- ======================== -->
+        <!-- SCREEN: HOME             -->
+        <!-- ======================== -->
+        <div class="screen screen--home active" id="homeScreen">
+            <header class="home-header">
+                <div class="logo-container">
+                    <div class="logo-icon">
+                        <span class="logo-emoji">🎯</span>
+                    </div>
+                    <h1 class="app-title">
+                        <span class="title-formi">Formi</span><span class="title-guess">Guess</span><span class="title-up">Up</span>
+                    </h1>
+                    <p class="app-subtitle">Devinez, rigolez, gagnez !</p>
+                </div>
+            </header>
+
+            <main class="home-main">
+                <div class="input-group">
+                    <label for="themeInput" class="input-label">Choisissez un thème</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">💡</span>
+                        <input
+                            type="text"
+                            id="themeInput"
+                            class="theme-input"
+                            placeholder="Ex: Animaux, Films, Célébrités..."
+                            autocomplete="off"
+                            spellcheck="false"
+                        >
+                        <button class="input-clear" id="clearInput" aria-label="Effacer">×</button>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">Durée de la partie</label>
+                    <div class="duration-selector">
+                        <button class="duration-btn" data-value="30">30s</button>
+                        <button class="duration-btn active" data-value="60">60s</button>
+                        <button class="duration-btn" data-value="90">90s</button>
+                        <button class="duration-btn" data-value="120">120s</button>
+                    </div>
+                </div>
+
+                <button class="btn-play" id="btnPlay">
+                    <span class="btn-play__icon">▶</span>
+                    <span class="btn-play__text">Jouer</span>
+                    <div class="btn-play__shine"></div>
+                </button>
+            </main>
+
+            <section class="history-panel" id="historyPanel">
+                <div class="history-header">
+                    <h2 class="history-title">
+                        <span class="history-icon">📜</span>
+                        Historique des thèmes
+                    </h2>
+                    <button class="history-clear-btn" id="clearHistory" aria-label="Effacer l'historique">
+                        <span>🗑️</span>
+                    </button>
+                </div>
+                <div class="history-list" id="historyList"></div>
+                <div class="history-empty" id="historyEmpty">
+                    <span class="history-empty__icon">🕐</span>
+                    <p class="history-empty__text">Aucun thème joué pour l'instant</p>
+                </div>
+            </section>
+        </div>
+
+        <!-- ======================== -->
+        <!-- SCREEN: LOADING          -->
+        <!-- ======================== -->
+        <div class="screen screen--loading" id="loadingScreen">
+            <div class="loading-content">
+                <div class="loading-spinner">
+                    <div class="spinner-ring"></div>
+                    <div class="spinner-ring"></div>
+                    <div class="spinner-ring"></div>
+                    <span class="spinner-emoji">🤖</span>
+                </div>
+                <h2 class="loading-title">Génération en cours...</h2>
+                <p class="loading-subtitle" id="loadingTheme">Thème : Animaux</p>
+                <div class="loading-bar">
+                    <div class="loading-bar__fill" id="loadingBarFill"></div>
+                </div>
+                <p class="loading-hint">L'IA prépare 100 mots pour vous !</p>
+            </div>
+        </div>
+
+        <!-- ======================== -->
+        <!-- SCREEN: ORIENTATION      -->
+        <!-- ======================== -->
+        <div class="screen screen--orientation" id="orientationScreen">
+            <div class="orientation-content">
+                <div class="phone-rotate-anim">
+                    <div class="phone-icon" id="phoneIcon">📱</div>
+                </div>
+                <h2 class="orientation-title">Tournez votre téléphone</h2>
+                <p class="orientation-subtitle">Passez en mode <strong>paysage</strong> pour commencer la partie</p>
+                <div class="orientation-arrows">
+                    <span class="rotate-arrow">↻</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ======================== -->
+        <!-- SCREEN: GAME             -->
+        <!-- ======================== -->
+        <div class="screen screen--game" id="gameScreen">
+            <div class="game-layout">
+                <!-- Timer bar at top -->
+                <div class="game-timer-bar">
+                    <div class="game-timer-fill" id="gameTimerFill"></div>
+                </div>
+                <div class="game-info-bar">
+                    <span class="game-score" id="gameScore">0</span>
+                    <span class="game-timer" id="gameTimer">60</span>
+                    <span class="game-remaining" id="gameRemaining">100 restants</span>
+                </div>
+
+                <!-- Main word display -->
+                <div class="game-word-container">
+                    <div class="game-word" id="gameWord">Mot</div>
+                </div>
+
+                <!-- Action hints instead of buttons -->
+                <div class="game-tilt-hints">
+                    <div class="tilt-hint tilt-hint--wrong">
+                        <span class="tilt-hint__icon">🔽</span>
+                        <span>BAS : PASSER</span>
+                    </div>
+                    <div class="tilt-hint tilt-hint--correct">
+                        <span class="tilt-hint__icon">🔼</span>
+                        <span>HAUT : OK</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ======================== -->
+        <!-- SCREEN: RESULTS          -->
+        <!-- ======================== -->
+        <div class="screen screen--results" id="resultsScreen">
+            <div class="results-content">
+                <div class="results-header">
+                    <h2 class="results-title">⏱️ Temps écoulé !</h2>
+                    <div class="results-score-card">
+                        <div class="score-big" id="resultsScoreValue">0</div>
+                        <div class="score-label">points</div>
+                    </div>
+                    <p class="results-theme" id="resultsTheme">Thème : Animaux</p>
+                </div>
+
+                <div class="results-stats">
+                    <div class="stat-box stat-box--correct">
+                        <span class="stat-number" id="statCorrect">0</span>
+                        <span class="stat-label">✓ Trouvés</span>
+                    </div>
+                    <div class="stat-box stat-box--wrong">
+                        <span class="stat-number" id="statWrong">0</span>
+                        <span class="stat-label">✕ Passés</span>
+                    </div>
+                </div>
+
+                <div class="results-table-container">
+                    <div class="results-table" id="resultsTable">
+                        <!-- Words will be listed here -->
+                    </div>
+                </div>
+
+                <div class="results-actions">
+                    <button class="btn-result btn-result--replay" id="btnReplay">
+                        <span>🔄</span> Rejouer
+                    </button>
+                    <button class="btn-result btn-result--home" id="btnHome">
+                        <span>🏠</span> Accueil
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

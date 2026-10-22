@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FormiFit - Sélection du Profil</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="profile-selection container">
+        <h1>FormiFit</h1>
+        <p>Qui est en train de se connecter ?</p>
+        
+        <div class="profiles-grid">
+            {% for profile in profiles %}
+            <a href="{{ url_for('dashboard', username=profile.id) }}" class="profile-card glass">
+                <div class="avatar">{{ profile.avatar }}</div>
+                <div class="profile-name">{{ profile.name }}</div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>

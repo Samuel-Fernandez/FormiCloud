@@ -1,0 +1,39 @@
+# Secrets
+.env
+!.env.example
+
+# Données runtime / personnelles (restent sur le VPS)
+data/
+proxy/letsencrypt/
+*.log
+*.log.*
+*.db
+*.db-shm
+*.db-wal
+FormiFit/data/
+FormiMarket/data/
+todolist/data/
+
+# Dépendances / builds
+node_modules/
+dist/
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Fichiers de test / artefacts
+todolist/output*.png
+todolist/output*.bin
+todolist/backend/test.js
+todolist/backend/test.png
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Apps ayant déjà leur propre dépôt git (voir README)
+FormiMarket/
+Formibudget/

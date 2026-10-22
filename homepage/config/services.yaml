@@ -1,0 +1,21 @@
+- Services:
+    - FormiMarket:
+        icon: mdi-cart-outline
+        href: "https://market.formicloud.duckdns.org"
+        description: "Pour les courses 🛒"
+    - FormiTodo:
+        icon: mdi-checkbox-marked-outline
+        href: "https://todo.formicloud.duckdns.org"
+        description: "Gestionnaire de tâches 📋"
+    - GuessUp:
+        icon: mdi-gamepad-variant-outline
+        href: "https://guessup.formicloud.duckdns.org"
+        description: "GuessUp mais free 🎮"
+    - FormiFit:
+        icon: mdi-weight-lifter
+        href: "https://fit.formicloud.duckdns.org/"
+        description: "Formifit pour être formisexy 💪"
+    - Formibudget:
+        icon: mdi-cash-multiple
+        href: "https://budget.formicloud.duckdns.org/"
+        description: "Gestion du budget 💰"

@@ -1,0 +1,13 @@
+{
+  "name": "formiguessup",
+  "version": "1.0.0",
+  "description": "FormiGuessUp - Le jeu de devinettes en équipe",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.0",
+    "openai": "^4.73.0"
+  }
+}

@@ -1,0 +1,9 @@
+services:
+  formiguessup:
+    build: .
+    container_name: formiguessup
+    restart: unless-stopped
+    ports:
+      - "1002:1000"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY:?OPENAI_API_KEY manquant dans .env}

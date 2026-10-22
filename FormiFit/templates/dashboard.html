@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tableau de Bord - {{ user.name }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header class="dashboard-header glass">
+            <div class="user-info">
+                <div class="avatar-small">{{ user.avatar }}</div>
+                <h2>Bonjour, {{ user.name }} 👋</h2>
+            </div>
+            <div class="header-actions">
+                <button class="btn-secondary" style="margin-top:0;" onclick="openManageDbModal()">🗄️ Gérer la Base</button>
+                <button class="btn-secondary" style="margin-top:0;" onclick="openModal('export-json-modal')">📤 Exporter JSON</button>
+                <button class="btn-primary" style="margin-top:0;" onclick="openModal('db-modal')">+ Depuis la Base</button>
+                <button class="btn-primary ai-btn" style="margin-top:0;" onclick="openModal('chat-modal')">✨ IA Assistant</button>
+                <a href="{{ url_for('settings', username=user.id) }}" class="btn-secondary" style="margin-top:0;">⚙️ Paramètres</a>
+                <a href="{{ url_for('index') }}" class="btn-secondary">Changer de profil</a>
+            </div>
+        </header>
+        
+        <main class="dashboard-content">
+            <div class="section-title">
+                <div class="nav-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 1rem;">
+                    <a href="?date={{ prev_week_str }}" class="btn-secondary" style="margin:0;">⬅️ Préc.</a>
+                    <h2 style="margin:0; text-align:center;">Sem. {{ monday_str }} - {{ sunday_str }}</h2>
+                    <a href="?date={{ next_week_str }}" class="btn-secondary" style="margin:0;">Suiv. ➡️</a>
+                </div>
+
+                <!-- Sélecteur de jours -->
+                <div class="days-selector" style="display: flex; justify-content: space-between; gap: 0.5rem; margin-bottom: 1.5rem; overflow-x: auto; padding-bottom: 0.5rem;">
+                    {% for d in week_dates %}
+                    <a href="?date={{ d.val }}" class="btn-{{ 'primary' if d.val == target_date_str else 'secondary' }}" style="flex: 1; margin: 0; text-align: center; padding: 0.5rem; min-width: 60px; text-decoration: none;">
+                        <div style="font-weight: bold; font-size: 0.9rem;">{{ d.short_day }}</div>
+                        <div style="font-size: 0.8rem; opacity: 0.8;">{{ d.date_str }}</div>
+                    </a>
+                    {% endfor %}
+                </div>
+
+                <h3 id="view-title">Vue de la journée {% if target_date_str == today_str %}(Aujourd'hui){% else %}({{ target_date_str }}){% endif %}</h3>
+                <p>Vos apports par rapport à vos objectifs personnalisés.</p>
+                <div style="margin-top: 1rem; display: flex; gap: 0.5rem;">
+                    <button id="btn-daily" class="btn-primary" style="margin-top:0; padding: 0.5rem 1rem;" onclick="switchView('daily')">Jour sélectionné</button>
+                    <button id="btn-weekly" class="btn-secondary" style="margin-top:0; padding: 0.5rem 1rem;" onclick="switchView('weekly')">Cette semaine</button>
+                </div>
+            </div>
+
+            <!-- Calories (Main) -->
+            <div class="progress-card glass">
+                <div class="progress-header">
+                    <span class="progress-label">Calories</span>
+                    <span class="progress-value" id="val-kcal">{{ intake.kcal }} / {{ targets.kcal }} kcal</span>
+                </div>
+                <div class="progress-track">
+                    <div class="progress-fill fill-kcal" id="bar-kcal" style="width: 0;" data-width="{{ pct.kcal }}"></div>
+                </div>
+            </div>
+
+            <!-- Macros -->
+            <div class="macros-grid">
+                <div class="progress-card glass">
+                    <div class="progress-header">
+                        <span class="progress-label">Protéines</span>
+                        <span class="progress-value" id="val-protein">{{ intake.protein }} / {{ targets.protein }} g</span>
+                    </div>
+                    <div class="progress-track">
+                        <div class="progress-fill fill-protein" id="bar-protein" style="width: 0;" data-width="{{ pct.protein }}"></div>
+                    </div>
+                </div>
+                <div class="progress-card glass">
+                    <div class="progress-header">
+                        <span class="progress-label">Glucides</span>
+                        <span class="progress-value" id="val-carbs">{{ intake.carbs }} / {{ targets.carbs }} g</span>
+                    </div>
+                    <div class="progress-track">
+                        <div class="progress-fill fill-carbs" id="bar-carbs" style="width: 0;" data-width="{{ pct.carbs }}"></div>
+                    </div>
+                </div>
+                <div class="progress-card glass">
+                    <div class="progress-header">
+                        <span class="progress-label">Lipides</span>
+                        <span class="progress-value" id="val-fat">{{ intake.fat }} / {{ targets.fat }} g</span>
+                    </div>
+                    <div class="progress-track">
+                        <div class="progress-fill fill-fat" id="bar-fat" style="width: 0;" data-width="{{ pct.fat }}"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Micros et Fibres -->
+            <div class="section-title" style="margin-top: 3rem;">
+                <h3>Micronutriments & Fibres</h3>
+            </div>
+            <div class="micros-grid">
+                <div class="progress-card glass">
+                    <div class="progress-header">
+                        <span class="progress-label">Fibres</span>
+                        <span class="progress-value" id="val-fiber">{{ intake.fiber }} / {{ targets.fiber }} g</span>
+                    </div>
+                    <div class="progress-track track-small">
+                        <div class="progress-fill fill-fiber" id="bar-fiber" style="width: 0;" data-width="{{ pct.fiber }}"></div>
+                    </div>
+                </div>
+                <div class="progress-card glass">
+                    <div class="progress-header">
+                        <span class="progress-label">Calcium</span>
+                        <span class="progress-value" id="val-calcium">{{ intake.calcium }} / {{ targets.calcium }} mg</span>
+                    </div>
+                    <div class="progress-track track-small">
+                        <div class="progress-fill fill-calcium" id="bar-calcium" style="width: 0;" data-width="{{ pct.calcium }}"></div>
+                    </div>
+                </div>
+                <div class="progress-card glass">
+                    <div class="progress-header">
+                        <span class="progress-label">Fer</span>
+                        <span class="progress-value" id="val-iron">{{ intake.iron }} / {{ targets.iron }} mg</span>
+                    </div>
+                    <div class="progress-track track-small">
+                        <div class="progress-fill fill-iron" id="bar-iron" style="width: 0;" data-width="{{ pct.iron }}"></div>
+                    </div>
+                </div>
+                <div class="progress-card glass">
+                    <div class="progress-header">
+                        <span class="progress-label">Vitamine C</span>
+                        <span class="progress-value" id="val-vit_c">{{ intake.vit_c }} / {{ targets.vit_c }} mg</span>
+                    </div>
+                    <div class="progress-track track-small">
+                        <div class="progress-fill fill-vit-c" id="bar-vit_c" style="width: 0;" data-width="{{ pct.vit_c }}"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Graphique 7 jours -->
+            <div class="section-title" style="margin-top: 3rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                <div>
+                    <h3>Vue Hebdomadaire (7 derniers jours)</h3>
+                </div>
+                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: flex-end;">
+                    <button class="btn-secondary" onclick="openEditHistoryModal()" style="margin: 0; padding: 0.5rem 1rem;">Éditer</button>
+                    {% if days_with_data > 0 %}
+                        {% if weekly_diff > 0 %}
+                        <span style="background: rgba(239, 68, 68, 0.2); color: #ef4444; padding: 0.5rem 1rem; border-radius: 99px; font-weight: bold; font-size: 0.9rem;">
+                            Bilan Objectif : +{{ weekly_diff }} kcal
+                        </span>
+                        {% elif weekly_diff < 0 %}
+                        <span style="background: rgba(34, 197, 94, 0.2); color: #22c55e; padding: 0.5rem 1rem; border-radius: 99px; font-weight: bold; font-size: 0.9rem;">
+                            Bilan Objectif : {{ weekly_diff }} kcal
+                        </span>
+                        {% else %}
+                        <span style="background: rgba(148, 163, 184, 0.2); color: #94a3b8; padding: 0.5rem 1rem; border-radius: 99px; font-weight: bold; font-size: 0.9rem;">
+                            Objectif parfait
+                        </span>
+                        {% endif %}
+
+                        <span style="background: rgba(56, 189, 248, 0.2); color: #38bdf8; padding: 0.5rem 1rem; border-radius: 99px; font-weight: bold; font-size: 0.9rem;">
+                            Réel : {{ real_diff_str }} kcal ({{ kg_diff_str }} kg)
+                        </span>
+                    {% else %}
+                        <span style="background: rgba(148, 163, 184, 0.2); color: #94a3b8; padding: 0.5rem 1rem; border-radius: 99px; font-weight: bold; font-size: 0.9rem;">
+                            Aucune donnée
+                        </span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="progress-card glass" style="position: relative; height: 300px; width: 100%;">
+                <canvas id="weeklyChart"></canvas>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal 1 : Ajouter depuis DB -->
+    <div id="db-modal" class="modal">
+        <div class="modal-content glass">
+            <span class="close" onclick="closeModal('db-modal')">&times;</span>
+            <h2>Ajouter de la base de données</h2>
+            <div class="form-group">
+                <label>Rechercher et sélectionner</label>
+                <input type="text" id="db-search" class="form-control" placeholder="Rechercher un repas ou sport..." onkeyup="filterDatabase()">
+                
+                <div id="db-list" class="db-list-container">
+                    <div class="db-list-category">Repas</div>
+                    {% for meal in db.meals %}
+                    <div class="db-item db-meal" data-value='{{ meal | tojson | safe }}' onclick="selectDbItem(this)">
+                        {{ meal.name }} <span style="float:right; opacity:0.7;">{{ meal.kcal }} kcal</span>
+                    </div>
+                    {% endfor %}
+                    
+                    <div class="db-list-category">Entraînements</div>
+                    {% for wo in db.workouts %}
+                    <div class="db-item db-workout" data-value='{{ wo | tojson | safe }}' onclick="selectDbItem(this)">
+                        {{ wo.name }} <span style="float:right; opacity:0.7;">{{ wo.kcal }} kcal</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Pourcentage (%)</label>
+                <input type="number" id="db-percentage" class="form-control" value="100" min="1" max="500">
+                <small style="color: var(--text-secondary)">Ex: 50% = Moitié du repas</small>
+            </div>
+            <div class="form-group">
+                <label>Date cible</label>
+                <select id="db-date" class="form-control">
+                    {% for d in week_dates %}
+                    <option value="{{ d.val }}" {% if d.val == target_date_str %}selected{% endif %}>{{ d.label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button class="btn-primary" onclick="consumeFromDB()">Ajouter à ma journée</button>
+        </div>
+    </div>
+
+    <!-- Modal 1.5 : Éditer l'historique -->
+    <div id="edit-history-modal" class="modal">
+        <div class="modal-content glass">
+            <span class="close" onclick="closeModal('edit-history-modal')">&times;</span>
+            <h2>Éditer l'historique</h2>
+            <div class="form-group">
+                <label>Date</label>
+                <select id="edit-date" class="form-control" onchange="loadDateData()">
+                    {% for d in week_dates %}
+                    <option value="{{ d.val }}" {% if d.val == target_date_str %}selected{% endif %}>{{ d.label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-bottom: 1rem;">
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label>Calories</label>
+                    <input type="number" id="edit-kcal" class="form-control" style="padding: 0.5rem;">
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label>Protéines (g)</label>
+                    <input type="number" id="edit-protein" class="form-control" style="padding: 0.5rem;">
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label>Glucides (g)</label>
+                    <input type="number" id="edit-carbs" class="form-control" style="padding: 0.5rem;">
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label>Lipides (g)</label>
+                    <input type="number" id="edit-fat" class="form-control" style="padding: 0.5rem;">
+                </div>
+            </div>
+            <button class="btn-primary" onclick="saveHistoryEdit()">Sauvegarder les totaux</button>
+            
+            <hr style="margin: 1.5rem 0; border: none; border-top: 1px solid rgba(255,255,255,0.1);">
+            
+            <h3>Éléments consommés</h3>
+            <div id="consumed-items-list" style="margin-top: 1rem; display: flex; flex-direction: column; gap: 0.5rem;">
+                <!-- Rempli par JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 2 : Chat IA -->
+    <div id="chat-modal" class="modal">
+        <div class="modal-content glass">
+            <span class="close" onclick="closeModal('chat-modal')">&times;</span>
+            <h2>Assistant IA FormiFit</h2>
+            <p style="color:var(--text-secondary); margin-bottom:1rem;">Décrivez ce que vous avez mangé ou votre entraînement.</p>
+            <textarea id="ai-input" class="form-control" rows="4" placeholder="Ex: J'ai mangé 200g de poulet avec 100g de riz..."></textarea>
+            <button class="btn-primary ai-btn" id="ai-btn" onclick="sendToAI()">Générer (IA)</button>
+            <p id="ai-loading" style="display:none; color: var(--accent-color); margin-top:1rem; font-weight:bold;">L'IA réfléchit...</p>
+        </div>
+    </div>
+
+    <!-- Modal 3 : Validation IA -->
+    <div id="ai-validation-modal" class="modal">
+        <div class="modal-content glass">
+            <h2>Résultat de l'IA</h2>
+            <div id="ai-result-content" style="text-align: left; margin: 1rem 0; background: rgba(0,0,0,0.2); padding: 1rem; border-radius: 12px; font-size:0.95rem;"></div>
+            
+            <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                <button class="btn-primary" style="margin-top:0;" onclick="saveAIToDB()">Valider & Sauvegarder</button>
+                <button class="btn-secondary" onclick="closeModal('ai-validation-modal'); openModal('chat-modal')">Recommencer</button>
+                <button class="btn-secondary" style="color: #ef4444;" onclick="closeModal('ai-validation-modal')">Annuler</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 4 : Exporter JSON -->
+    <div id="export-json-modal" class="modal">
+        <div class="modal-content glass" style="max-width: 600px;">
+            <span class="close" onclick="closeModal('export-json-modal')">&times;</span>
+            <h2>Exporter l'historique</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">Récupérer le JSON détaillé de vos consommations récentes.</p>
+            
+            <p id="export-error" style="color: #ef4444; font-size: 0.9rem; display: none; margin-bottom: 1rem;"></p>
+            
+            <div class="form-group">
+                <label for="export-weeks">Nombre de semaines à inclure</label>
+                <div style="display: flex; gap: 0.5rem;">
+                    <input type="number" id="export-weeks" class="form-control" value="4" min="1" max="52" style="flex: 1;">
+                    <button class="btn-primary" style="margin-top: 0; flex: 1; padding: 0.5rem 1rem;" onclick="fetchExportJSON()">Générer le JSON</button>
+                </div>
+            </div>
+            
+            <div class="form-group" style="margin-bottom: 1rem;">
+                <label for="export-json-text">Texte JSON à copier/coller</label>
+                <textarea id="export-json-text" class="form-control" rows="10" readonly placeholder="Cliquez sur 'Générer le JSON'..." style="font-family: monospace; font-size: 0.85rem; background: rgba(0,0,0,0.15); border: 1px solid var(--card-border); color: var(--text-primary); cursor: text;"></textarea>
+            </div>
+            
+            <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                <button class="btn-primary" id="btn-copy-json" style="margin-top:0;" onclick="copyExportedJSON()" disabled>Copier le JSON</button>
+                <button class="btn-secondary" onclick="closeModal('export-json-modal')">Fermer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 5 : Gérer la Base de Données -->
+    <div id="manage-db-modal" class="modal">
+        <div class="modal-content glass" style="max-width: 600px; width: 90%; max-height: 90vh; display: flex; flex-direction: column; padding: 2rem;">
+            <span class="close" onclick="closeModal('manage-db-modal')">&times;</span>
+            
+            <!-- VUE LISTE -->
+            <div id="manage-db-list-view" style="display: flex; flex-direction: column; height: 100%; overflow: hidden;">
+                <h2>Gestion de la base de données</h2>
+                <p style="color: var(--text-secondary); margin-bottom: 1rem;">Ajoutez, modifiez ou supprimez des éléments de la base globale.</p>
+                
+                <p id="manage-db-error" style="color: #ef4444; font-size: 0.9rem; display: none; margin-bottom: 0.5rem;"></p>
+                
+                <div class="form-group" style="margin-bottom: 0.75rem;">
+                    <input type="text" id="manage-db-search" class="form-control" placeholder="Rechercher un plat ou entraînement..." onkeyup="filterManageDb()">
+                </div>
+                
+                <div style="margin-bottom: 0.75rem;">
+                    <button class="btn-primary" style="margin-top: 0; padding: 0.6rem 1rem; width: auto;" onclick="showAddDbForm()">+ Créer manuellement</button>
+                </div>
+                
+                <div id="manage-db-list" class="db-list-container" style="flex: 1; min-height: 200px; max-height: none; overflow-y: auto;">
+                    <!-- Rempli par JS -->
+                </div>
+                
+                <div style="margin-top: 1rem; text-align: right;">
+                    <button class="btn-secondary" onclick="closeModal('manage-db-modal')">Fermer</button>
+                </div>
+            </div>
+            
+            <!-- VUE FORMULAIRE -->
+            <div id="manage-db-form-view" style="display: none; flex-direction: column; height: 100%; overflow-y: auto;">
+                <h2 id="form-title">Créer / Modifier un élément</h2>
+                <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">Saisissez les informations et valeurs nutritionnelles détaillées.</p>
+                
+                <p id="form-error" style="color: #ef4444; font-size: 0.9rem; display: none; margin-bottom: 1rem;"></p>
+                
+                <input type="hidden" id="form-id">
+                
+                <div class="form-group">
+                    <label for="form-name">Nom de l'élément</label>
+                    <input type="text" id="form-name" class="form-control" required placeholder="Ex: Blanc de poulet grillé">
+                </div>
+                
+                <div class="form-group">
+                    <label for="form-type">Type</label>
+                    <select id="form-type" class="form-control" onchange="toggleFormTypeFields()">
+                        <option value="meal">Repas / Aliment</option>
+                        <option value="workout">Entraînement / Sport</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="form-kcal" id="lbl-kcal">Calories (kcal)</label>
+                    <input type="number" id="form-kcal" class="form-control" step="any" placeholder="Ex: 120 (Entraînement: valeur négative comme -300)">
+                </div>
+                
+                <div id="nutritional-fields" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                    <div class="form-group">
+                        <label for="form-protein">Protéines (g)</label>
+                        <input type="number" id="form-protein" class="form-control" step="any" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="form-carbs">Glucides (g)</label>
+                        <input type="number" id="form-carbs" class="form-control" step="any" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="form-fat">Lipides (g)</label>
+                        <input type="number" id="form-fat" class="form-control" step="any" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="form-fiber">Fibres (g)</label>
+                        <input type="number" id="form-fiber" class="form-control" step="any" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="form-calcium">Calcium (mg)</label>
+                        <input type="number" id="form-calcium" class="form-control" step="any" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="form-iron">Fer (mg)</label>
+                        <input type="number" id="form-iron" class="form-control" step="any" value="0">
+                    </div>
+                    <div class="form-group" style="grid-column: span 2;">
+                        <label for="form-vit_c">Vitamine C (mg)</label>
+                        <input type="number" id="form-vit_c" class="form-control" step="any" value="0">
+                    </div>
+                </div>
+                
+                <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                    <button class="btn-primary" style="margin-top: 0;" onclick="submitDbForm()">Enregistrer</button>
+                    <button class="btn-secondary" onclick="hideDbForm()">Annuler</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let dailyIntake = {{ intake | tojson | safe }};
+        let dailyTargets = {{ targets | tojson | safe }};
+        let weeklyIntake = {{ weekly_intake | tojson | safe }};
+        let weeklyTargets = {{ weekly_targets | tojson | safe }};
+        const todayIntake = {{ today_intake | tojson | safe }};
+        
+        let targets = dailyTargets; // for existing code compatibility
+        const username = "{{ user.id }}";
+        const userHistory = {{ history | tojson | safe }};
+        const todayStr = "{{ today_str }}";
+        const targetDateStr = "{{ target_date_str }}";
+        let lastAIResult = null;
+        let selectedDbItemValue = null;
+        let currentView = 'daily';
+
+        function switchView(view) {
+            currentView = view;
+            let currentIntake = view === 'daily' ? dailyIntake : weeklyIntake;
+            let currentTargets = view === 'daily' ? dailyTargets : weeklyTargets;
+            
+            if(view === 'daily') {
+                document.getElementById('btn-daily').className = 'btn-primary';
+                document.getElementById('btn-weekly').className = 'btn-secondary';
+                document.getElementById('view-title').innerText = "Vue d'ensemble d'aujourd'hui";
+            } else {
+                document.getElementById('btn-weekly').className = 'btn-primary';
+                document.getElementById('btn-daily').className = 'btn-secondary';
+                document.getElementById('view-title').innerText = "Vue d'ensemble de la semaine";
+            }
+
+            for (let key in currentTargets) {
+                let targetVal = currentTargets[key];
+                let currentVal = currentIntake[key] || 0;
+                let pct = targetVal > 0 ? Math.round((currentVal / targetVal) * 100) : 0;
+                
+                let visualPct = Math.min(Math.max(pct, 0), 100);
+                
+                const valElem = document.getElementById(`val-${key}`);
+                if (valElem) {
+                    valElem.innerText = `${currentVal} / ${targetVal} ${key === 'kcal' ? 'kcal' : (['calcium','iron','vit_c'].includes(key) ? 'mg' : 'g')}`;
+                }
+                
+                const barElem = document.getElementById(`bar-${key}`);
+                if (barElem) {
+                    barElem.style.width = visualPct + '%';
+                }
+            }
+        }
+
+        function selectDbItem(element) {
+            const items = document.querySelectorAll('.db-item');
+            items.forEach(i => i.classList.remove('selected'));
+            element.classList.add('selected');
+            selectedDbItemValue = element.getAttribute('data-value');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const fills = document.querySelectorAll('.progress-fill');
+            setTimeout(() => {
+                fills.forEach(fill => {
+                    const targetWidth = fill.getAttribute('data-width');
+                    fill.style.width = targetWidth + '%';
+                });
+            }, 150);
+        });
+
+        function updateBarsFromData(intake) {
+            switchView(currentView);
+        }
+
+        function openModal(id) {
+            document.getElementById(id).style.display = "flex";
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).style.display = "none";
+        }
+
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = "none";
+            }
+        }
+
+        function openEditHistoryModal() {
+            openModal('edit-history-modal');
+            loadDateData();
+        }
+
+        function loadDateData() {
+            const dateVal = document.getElementById('edit-date').value;
+            let data = null;
+            if (dateVal === targetDateStr) {
+                data = dailyIntake;
+            } else if (dateVal === todayStr) {
+                data = todayIntake;
+            } else {
+                data = userHistory[dateVal] || {kcal:0, protein:0, carbs:0, fat:0};
+            }
+            document.getElementById('edit-kcal').value = data.kcal || 0;
+            document.getElementById('edit-protein').value = data.protein || 0;
+            document.getElementById('edit-carbs').value = data.carbs || 0;
+            document.getElementById('edit-fat').value = data.fat || 0;
+
+            renderConsumedItems(data.consumed_items || [], dateVal);
+        }
+
+        function renderConsumedItems(items, dateVal) {
+            const container = document.getElementById('consumed-items-list');
+            container.innerHTML = '';
+            
+            if (items.length === 0) {
+                container.innerHTML = '<p style="color:var(--text-secondary); font-size:0.9rem;">Aucun élément enregistré pour ce jour.</p>';
+                return;
+            }
+
+            items.forEach(cItem => {
+                const isWorkout = cItem.item.type === 'workout';
+                const el = document.createElement('div');
+                el.style.display = 'flex';
+                el.style.alignItems = 'center';
+                el.style.justifyContent = 'space-between';
+                el.style.background = 'rgba(0,0,0,0.05)';
+                el.style.padding = '0.5rem';
+                el.style.borderRadius = '8px';
+                el.style.border = '1px solid var(--card-border)';
+                
+                el.innerHTML = `
+                    <div style="flex: 1; min-width:0;">
+                        <div style="font-weight:bold; font-size:0.9rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${cItem.item.name}">
+                            ${isWorkout ? '🏃' : '🍽️'} ${cItem.item.name}
+                        </div>
+                        <div style="font-size:0.75rem; color:var(--text-secondary); margin-top:0.1rem;">
+                            ${cItem.item.kcal} kcal (base)
+                        </div>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:0.25rem; flex-shrink:0; margin-left:0.5rem;">
+                        <input type="number" id="pct-${cItem.instance_id}" value="${cItem.percentage}" style="width: 50px; padding: 0.2rem; border-radius:4px; border:1px solid var(--card-border); background:var(--card-bg); color:var(--text-primary); text-align:center; font-size:0.8rem;">
+                        <span style="color:var(--text-secondary); font-size:0.8rem;">%</span>
+                        <button onclick="updateConsumedItem('${cItem.instance_id}', '${dateVal}')" style="background:#3b82f6; border:none; color:white; border-radius:4px; padding:0.2rem 0.4rem; cursor:pointer;" title="Mettre à jour">💾</button>
+                        <button onclick="deleteConsumedItem('${cItem.instance_id}', '${dateVal}')" style="background:#ef4444; border:none; color:white; border-radius:4px; padding:0.2rem 0.4rem; cursor:pointer;" title="Supprimer">❌</button>
+                    </div>
+                `;
+                container.appendChild(el);
+            });
+        }
+
+        async function deleteConsumedItem(instanceId, dateVal) {
+            if (!confirm("Voulez-vous vraiment supprimer cet élément ?")) return;
+            const res = await fetch('/api/delete_consumed_item', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({username, target_date: dateVal, instance_id: instanceId})
+            });
+            const data = await res.json();
+            if(data.success) {
+                location.reload();
+            }
+        }
+
+        async function updateConsumedItem(instanceId, dateVal) {
+            const newPct = parseFloat(document.getElementById('pct-' + instanceId).value);
+            if (isNaN(newPct) || newPct <= 0) return alert("Pourcentage invalide");
+
+            const res = await fetch('/api/update_consumed_item', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({username, target_date: dateVal, instance_id: instanceId, new_percentage: newPct})
+            });
+            const data = await res.json();
+            if(data.success) {
+                location.reload();
+            }
+        }
+
+        async function saveHistoryEdit() {
+            const dateVal = document.getElementById('edit-date').value;
+            const newData = {
+                kcal: parseFloat(document.getElementById('edit-kcal').value) || 0,
+                protein: parseFloat(document.getElementById('edit-protein').value) || 0,
+                carbs: parseFloat(document.getElementById('edit-carbs').value) || 0,
+                fat: parseFloat(document.getElementById('edit-fat').value) || 0
+            };
+
+            const res = await fetch('/api/update_intake', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({username, target_date: dateVal, new_data: newData})
+            });
+            const data = await res.json();
+            if(data.success) {
+                location.reload();
+            }
+        }
+
+        async function consumeFromDB() {
+            if(!selectedDbItemValue) return alert("Aucun élément sélectionné");
+            
+            const item = JSON.parse(selectedDbItemValue);
+            const percentage = document.getElementById('db-percentage').value;
+            const target_date = document.getElementById('db-date').value;
+
+            const res = await fetch('/api/consume', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({username, item, percentage, target_date})
+            });
+            const data = await res.json();
+            if(data.success) {
+                location.reload();
+            }
+        }
+
+        async function sendToAI() {
+            const input = document.getElementById('ai-input').value;
+            if(!input) return;
+
+            document.getElementById('ai-btn').style.display = "none";
+            document.getElementById('ai-loading').style.display = "block";
+
+            try {
+                const res = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({message: input})
+                });
+                const data = await res.json();
+                
+                if (data.error) {
+                    alert("Erreur IA: " + data.error);
+                } else {
+                    lastAIResult = data;
+                    closeModal('chat-modal');
+                    
+                    let html = `<h3 style="color:var(--text-primary);margin-bottom:0.5rem;">${data.name}</h3>`;
+                    html += `<p style="color:var(--accent-color); margin-bottom:1rem;">Type: ${data.type}</p>`;
+                    html += `<div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.5rem;">`;
+                    for(let key in targets) {
+                        if (data[key] !== undefined) {
+                            html += `<div><strong>${key}:</strong> ${data[key]}</div>`;
+                        }
+                    }
+                    html += `</div>`;
+                    
+                    document.getElementById('ai-result-content').innerHTML = html;
+                    openModal('ai-validation-modal');
+                }
+            } catch (e) {
+                alert("Erreur réseau");
+            } finally {
+                document.getElementById('ai-btn').style.display = "block";
+                document.getElementById('ai-loading').style.display = "none";
+                document.getElementById('ai-input').value = "";
+            }
+        }
+
+        async function saveAIToDB() {
+            if(!lastAIResult) return;
+            
+            const res = await fetch('/api/save_to_db', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(lastAIResult)
+            });
+            const data = await res.json();
+            if(data.success) {
+                closeModal('ai-validation-modal');
+                alert("Sauvegardé avec succès dans la base de données globale !");
+                location.reload();
+            }
+        }
+
+        // Initialisation de Chart.js
+        const labels7d = {{ labels_7d | tojson | safe }};
+        const data7d = {{ data_7d | tojson | safe }};
+        const target7d = {{ target_7d | tojson | safe }};
+
+        const ctx = document.getElementById('weeklyChart').getContext('2d');
+        const weeklyChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels7d,
+                datasets: [
+                    {
+                        label: 'Calories Consommées',
+                        data: data7d,
+                        backgroundColor: 'rgba(168, 85, 247, 0.5)',
+                        borderColor: 'rgba(168, 85, 247, 1)',
+                        borderWidth: 1,
+                        borderRadius: 6
+                    },
+                    {
+                        label: 'Objectif Calorique',
+                        data: target7d,
+                        type: 'line',
+                        borderColor: 'rgba(99, 102, 241, 1)',
+                        borderWidth: 2,
+                        borderDash: [5, 5],
+                        fill: false,
+                        tension: 0.1,
+                        pointBackgroundColor: 'rgba(99, 102, 241, 1)'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: { color: '#475569' }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(0, 0, 0, 0.1)' },
+                        ticks: { color: '#475569' }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: '#475569' }
+                    }
+                }
+            }
+        });
+
+        function filterDatabase() {
+            const input = document.getElementById('db-search');
+            const filter = input.value.toLowerCase();
+            const items = document.querySelectorAll('.db-item');
+            
+            items.forEach(item => {
+                const text = item.innerText.toLowerCase();
+                if (text.indexOf(filter) > -1) {
+                    item.style.display = "flex";
+                } else {
+                    item.style.display = "none";
+                }
+            });
+        }
+
+        async function fetchExportJSON() {
+            const weeksInput = document.getElementById('export-weeks');
+            const weeks = parseInt(weeksInput.value);
+            const errorElem = document.getElementById('export-error');
+            errorElem.style.display = 'none';
+            
+            if (isNaN(weeks) || weeks < 1 || weeks > 52) {
+                errorElem.textContent = "Veuillez saisir un nombre de semaines valide (entre 1 et 52).";
+                errorElem.style.display = 'block';
+                return;
+            }
+            
+            const btnCopy = document.getElementById('btn-copy-json');
+            const textArea = document.getElementById('export-json-text');
+            textArea.value = "Chargement en cours...";
+            btnCopy.disabled = true;
+            
+            try {
+                const res = await fetch(`/api/export_json/${username}?weeks=${weeks}`);
+                const data = await res.json();
+                if (data.error) {
+                    textArea.value = "Erreur: " + data.error;
+                } else {
+                    textArea.value = JSON.stringify(data, null, 2);
+                    btnCopy.disabled = false;
+                }
+            } catch (err) {
+                textArea.value = "Erreur lors de la récupération des données.";
+            }
+        }
+        
+        async function copyExportedJSON() {
+            const textArea = document.getElementById('export-json-text');
+            const errorElem = document.getElementById('export-error');
+            errorElem.style.display = 'none';
+            
+            if (!textArea.value || textArea.value.startsWith("Erreur") || textArea.value.startsWith("Chargement")) {
+                return;
+            }
+            
+            try {
+                await navigator.clipboard.writeText(textArea.value);
+                const btnCopy = document.getElementById('btn-copy-json');
+                const oldText = btnCopy.textContent;
+                btnCopy.textContent = "✓ Copié !";
+                btnCopy.style.background = "#22c55e";
+                setTimeout(() => {
+                    btnCopy.textContent = oldText;
+                    btnCopy.style.background = "";
+                }, 2000);
+            } catch (err) {
+                errorElem.textContent = "Impossible de copier automatiquement. Veuillez copier manuellement le texte.";
+                errorElem.style.display = 'block';
+            }
+        }
+
+        let databaseItems = [];
+
+        function initDatabaseItems() {
+            databaseItems = [];
+            const dbObj = {{ db | tojson | safe }};
+            if (dbObj.meals) {
+                dbObj.meals.forEach(item => {
+                    item.type = 'meal';
+                    databaseItems.push(item);
+                });
+            }
+            if (dbObj.workouts) {
+                dbObj.workouts.forEach(item => {
+                    item.type = 'workout';
+                    databaseItems.push(item);
+                });
+            }
+            databaseItems.sort((a, b) => a.name.localeCompare(b.name));
+        }
+
+        function renderManageDbList() {
+            const container = document.getElementById('manage-db-list');
+            container.innerHTML = '';
+            
+            if (databaseItems.length === 0) {
+                container.innerHTML = '<p style="color:var(--text-secondary); padding: 1rem;">La base de données est vide.</p>';
+                return;
+            }
+            
+            const meals = databaseItems.filter(x => x.type === 'meal');
+            const workouts = databaseItems.filter(x => x.type === 'workout');
+            
+            if (meals.length > 0) {
+                const cat = document.createElement('div');
+                cat.className = 'db-list-category';
+                cat.textContent = 'Repas / Aliments';
+                container.appendChild(cat);
+                
+                meals.forEach(item => {
+                    container.appendChild(createManageDbRow(item));
+                });
+            }
+            
+            if (workouts.length > 0) {
+                const cat = document.createElement('div');
+                cat.className = 'db-list-category';
+                cat.textContent = 'Entraînements / Sports';
+                container.appendChild(cat);
+                
+                workouts.forEach(item => {
+                    container.appendChild(createManageDbRow(item));
+                });
+            }
+        }
+
+        function createManageDbRow(item) {
+            const row = document.createElement('div');
+            row.className = 'db-item';
+            row.style.display = 'flex';
+            row.style.alignItems = 'center';
+            row.style.justifyContent = 'space-between';
+            row.style.padding = '0.75rem 1rem';
+            row.setAttribute('data-id', item.id);
+            row.setAttribute('data-search', item.name.toLowerCase());
+            
+            const isWorkout = item.type === 'workout';
+            const detailsText = isWorkout ? `${item.kcal} kcal` : `${item.kcal} kcal | P:${item.protein}g G:${item.carbs}g L:${item.fat}g`;
+            
+            row.innerHTML = `
+                <div style="flex: 1; min-width: 0; text-align: left;">
+                    <div style="font-weight: bold; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                        ${isWorkout ? '🏃' : '🍽️'} ${item.name}
+                    </div>
+                    <div style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.1rem;">
+                        ${detailsText}
+                    </div>
+                </div>
+                <div style="display: flex; gap: 0.5rem; flex-shrink: 0; margin-left: 1rem;">
+                    <button class="btn-secondary" style="margin: 0; padding: 0.3rem 0.6rem; font-size: 0.85rem;" onclick="openEditDbForm('${item.id}')">Modifier</button>
+                    <button class="btn-secondary" style="margin: 0; padding: 0.3rem 0.6rem; font-size: 0.85rem; color: #ef4444; border-color: rgba(239, 68, 68, 0.2);" onclick="deleteDbItem('${item.id}')">Supprimer</button>
+                </div>
+            `;
+            return row;
+        }
+
+        function openManageDbModal() {
+            initDatabaseItems();
+            renderManageDbList();
+            hideDbForm();
+            openModal('manage-db-modal');
+        }
+
+        function showAddDbForm() {
+            document.getElementById('manage-db-list-view').style.display = 'none';
+            document.getElementById('manage-db-form-view').style.display = 'flex';
+            
+            document.getElementById('form-title').textContent = "Créer un élément";
+            document.getElementById('form-id').value = "";
+            document.getElementById('form-name').value = "";
+            document.getElementById('form-type').value = "meal";
+            document.getElementById('form-kcal').value = "";
+            
+            document.getElementById('form-protein').value = 0;
+            document.getElementById('form-carbs').value = 0;
+            document.getElementById('form-fat').value = 0;
+            document.getElementById('form-fiber').value = 0;
+            document.getElementById('form-calcium').value = 0;
+            document.getElementById('form-iron').value = 0;
+            document.getElementById('form-vit_c').value = 0;
+            
+            toggleFormTypeFields();
+        }
+
+        function openEditDbForm(itemId) {
+            const item = databaseItems.find(x => x.id === itemId);
+            if (!item) return;
+            
+            document.getElementById('manage-db-list-view').style.display = 'none';
+            document.getElementById('manage-db-form-view').style.display = 'flex';
+            
+            document.getElementById('form-title').textContent = "Modifier un élément";
+            document.getElementById('form-id').value = item.id;
+            document.getElementById('form-name').value = item.name;
+            document.getElementById('form-type').value = item.type;
+            document.getElementById('form-kcal').value = item.kcal;
+            
+            document.getElementById('form-protein').value = item.protein || 0;
+            document.getElementById('form-carbs').value = item.carbs || 0;
+            document.getElementById('form-fat').value = item.fat || 0;
+            document.getElementById('form-fiber').value = item.fiber || 0;
+            document.getElementById('form-calcium').value = item.calcium || 0;
+            document.getElementById('form-iron').value = item.iron || 0;
+            document.getElementById('form-vit_c').value = item.vit_c || 0;
+            
+            toggleFormTypeFields();
+        }
+
+        function hideDbForm() {
+            document.getElementById('manage-db-form-view').style.display = 'none';
+            document.getElementById('manage-db-list-view').style.display = 'flex';
+            document.getElementById('form-error').style.display = 'none';
+        }
+
+        function filterManageDb() {
+            const query = document.getElementById('manage-db-search').value.toLowerCase();
+            const items = document.querySelectorAll('#manage-db-list .db-item');
+            
+            items.forEach(row => {
+                const text = row.getAttribute('data-search');
+                if (text.includes(query)) {
+                    row.style.display = 'flex';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        function toggleFormTypeFields() {
+            const type = document.getElementById('form-type').value;
+            const nutFields = document.getElementById('nutritional-fields');
+            const lblKcal = document.getElementById('lbl-kcal');
+            
+            if (type === 'workout') {
+                nutFields.style.display = 'none';
+                lblKcal.textContent = "Calories brûlées (kcal, négatif ex: -300)";
+            } else {
+                nutFields.style.display = 'grid';
+                lblKcal.textContent = "Calories (kcal)";
+            }
+        }
+
+        async function submitDbForm() {
+            const name = document.getElementById('form-name').value.trim();
+            const type = document.getElementById('form-type').value;
+            const kcalVal = document.getElementById('form-kcal').value;
+            const errorElem = document.getElementById('form-error');
+            errorElem.style.display = 'none';
+            
+            if (!name) {
+                errorElem.textContent = "Le nom est obligatoire.";
+                errorElem.style.display = 'block';
+                return;
+            }
+            if (kcalVal === '') {
+                errorElem.textContent = "Les calories sont obligatoires.";
+                errorElem.style.display = 'block';
+                return;
+            }
+            
+            const kcal = parseFloat(kcalVal);
+            if (isNaN(kcal)) {
+                errorElem.textContent = "Valeur calorique invalide.";
+                errorElem.style.display = 'block';
+                return;
+            }
+            
+            if (type === 'workout' && kcal > 0) {
+                errorElem.textContent = "Pour un entraînement, les calories brûlées doivent être négatives (ex: -300).";
+                errorElem.style.display = 'block';
+                return;
+            }
+            
+            const payload = {
+                id: document.getElementById('form-id').value || null,
+                name: name,
+                type: type,
+                kcal: kcal,
+                protein: type === 'meal' ? (parseFloat(document.getElementById('form-protein').value) || 0) : 0,
+                carbs: type === 'meal' ? (parseFloat(document.getElementById('form-carbs').value) || 0) : 0,
+                fat: type === 'meal' ? (parseFloat(document.getElementById('form-fat').value) || 0) : 0,
+                fiber: type === 'meal' ? (parseFloat(document.getElementById('form-fiber').value) || 0) : 0,
+                calcium: type === 'meal' ? (parseFloat(document.getElementById('form-calcium').value) || 0) : 0,
+                iron: type === 'meal' ? (parseFloat(document.getElementById('form-iron').value) || 0) : 0,
+                vit_c: type === 'meal' ? (parseFloat(document.getElementById('form-vit_c').value) || 0) : 0
+            };
+            
+            try {
+                const res = await fetch('/api/db/save', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (data.error) {
+                    errorElem.textContent = "Erreur: " + data.error;
+                    errorElem.style.display = 'block';
+                } else {
+                    location.reload();
+                }
+            } catch (err) {
+                errorElem.textContent = "Erreur de connexion avec le serveur.";
+                errorElem.style.display = 'block';
+            }
+        }
+
+        async function deleteDbItem(itemId) {
+            const item = databaseItems.find(x => x.id === itemId);
+            if (!item) return;
+            
+            const errorElem = document.getElementById('manage-db-error');
+            errorElem.style.display = 'none';
+            
+            const row = document.querySelector(`#manage-db-list [data-id="${itemId}"]`);
+            const deleteBtn = row.querySelector('button[style*="color: #ef4444"]');
+            
+            if (deleteBtn.textContent === "Supprimer") {
+                deleteBtn.textContent = "Sûr ?";
+                deleteBtn.style.background = "#ef4444";
+                deleteBtn.style.color = "white";
+                document.querySelectorAll('#manage-db-list button[style*="background: rgb(239, 68, 68)"]').forEach(btn => {
+                    if (btn !== deleteBtn) {
+                        btn.textContent = "Supprimer";
+                        btn.style.background = "";
+                        btn.style.color = "#ef4444";
+                    }
+                });
+                return;
+            }
+            
+            try {
+                const res = await fetch(`/api/db/delete/${itemId}`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'}
+                });
+                const data = await res.json();
+                if (data.error) {
+                    errorElem.textContent = "Erreur: " + data.error;
+                    errorElem.style.display = 'block';
+                } else {
+                    location.reload();
+                }
+            } catch (err) {
+                errorElem.textContent = "Erreur de connexion avec le serveur.";
+                errorElem.style.display = 'block';
+            }
+        }
+    </script>
+</body>
+</html>

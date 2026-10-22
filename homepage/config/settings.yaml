@@ -1,0 +1,11 @@
+title: "FormiCloud Dashboard"
+background:
+  image: https://images.unsplash.com/photo-1506744626753-1116bf199e22?q=80&w=2070&auto=format&fit=crop
+  blur: "sm"
+  saturate: "100"
+  brightness: "100"
+theme: light
+layout:
+  Services:
+    style: row
+    columns: 4

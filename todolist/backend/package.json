@@ -1,0 +1,14 @@
+{
+  "name": "formitodo",
+  "version": "1.0.0",
+  "description": "FormiTodo - Application de gestion de tâches FormiCouple",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "better-sqlite3": "^9.4.3",
+    "express": "^4.18.3",
+    "pureimage": "^0.4.18"
+  }
+}
