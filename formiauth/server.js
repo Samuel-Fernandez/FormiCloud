@@ -37,7 +37,7 @@ app.post('/api/login', (req, res) => {
     if (password === AUTH_PASSWORD) {
         // Set cookie valid across all formicloud.duckdns.org subdomains
         res.cookie(COOKIE_NAME, COOKIE_SECRET, {
-            domain: '.formicloud.duckdns.org',
+            domain: process.env.COOKIE_DOMAIN || '.formicloud.duckdns.org',
             path: '/',
             maxAge: 365 * 24 * 60 * 60 * 1000, // 1 year
             httpOnly: true,
