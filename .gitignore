@@ -11,7 +11,7 @@ proxy/letsencrypt/
 *.db-shm
 *.db-wal
 FormiFit/data/
-FormiMarket/data/
+!FormiMarket/data/
 todolist/data/
 
 # Dépendances / builds

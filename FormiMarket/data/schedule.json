@@ -1,0 +1,24 @@
+{
+    "Lundi": [],
+    "Mardi": [
+        {
+            "id": "ae0f9f9a-5284-4520-8fa5-a92bee0b86e9",
+            "name": "Riz ratatouille"
+        }
+    ],
+    "Mercredi": [
+        {
+            "id": "82c62291-515e-48c0-8f7c-5fd6ab12dbb0",
+            "name": "Gratin dauphinois & poisson"
+        }
+    ],
+    "Jeudi": [
+        {
+            "id": "034dc37f-4190-4078-9b79-ff72a242e2c0",
+            "name": "Lentilles aux oeufs et au brocobeurk"
+        }
+    ],
+    "Vendredi": [],
+    "Samedi": [],
+    "Dimanche": []
+}

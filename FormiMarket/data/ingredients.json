@@ -1,0 +1,692 @@
+[
+    {
+        "name": "Patate",
+        "category": "Fruits & Légumes",
+        "price": null,
+        "checked": true
+    },
+    {
+        "name": "Haricots",
+        "category": "Fruits & Légumes",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Brocolis",
+        "category": "Fruits & Légumes",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Blanc de poulet",
+        "category": "Viandes & Poissons",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Crevettes",
+        "category": "Viandes & Poissons",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Pâtes",
+        "category": "Épicerie",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Crème",
+        "category": "Produits Laitiers & Oeufs",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Persil",
+        "category": "Épicerie",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Ail",
+        "category": "Épicerie",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Gruyère",
+        "category": "Produits Laitiers & Oeufs",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Carotte",
+        "category": "Fruits & Légumes",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Cumin",
+        "category": "Épicerie",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Riz",
+        "category": "Épicerie",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Cabillaud",
+        "category": "Viandes & Poissons",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Champignons de paris",
+        "category": "Fruits & Légumes",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Oignon",
+        "category": "Fruits & Légumes",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Mozarella",
+        "category": "Produits Laitiers & Oeufs",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Tomate cerise",
+        "category": "Fruits & Légumes",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Concombre",
+        "category": "Fruits & Légumes",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Avocat",
+        "category": "Fruits & Légumes",
+        "price": null,
+        "checked": true
+    },
+    {
+        "name": "Maïs",
+        "category": "Fruits & Légumes",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Thon",
+        "category": "Viandes & Poissons",
+        "price": null,
+        "checked": true
+    },
+    {
+        "name": "Vermicelles",
+        "category": "Épicerie",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Poulet",
+        "category": "Viandes & Poissons",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Poivron",
+        "category": "Fruits & Légumes",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Sauce soja",
+        "category": "Épicerie",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Courgette",
+        "category": "Fruits & Légumes",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Tomate conserve",
+        "category": "Épicerie",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Haricots vert",
+        "category": "Fruits & Légumes",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Thym",
+        "category": "Épicerie",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Oeufs",
+        "category": "Produits Laitiers & Oeufs",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Farine",
+        "category": "Épicerie",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Lait",
+        "category": "Produits Laitiers & Oeufs",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Jambon",
+        "category": "Viandes & Poissons",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Lard",
+        "category": "Viandes & Poissons",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Saumon",
+        "category": "Viandes & Poissons",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Fromage aux herbes",
+        "category": "Produits Laitiers & Oeufs",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Pizza industrielle",
+        "category": "Épicerie",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Tabasco",
+        "category": "Épicerie",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Olive",
+        "category": "Épicerie",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Ratatouille",
+        "category": "Fruits & Légumes",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Poisson frit",
+        "category": "Viandes & Poissons",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Lentilles",
+        "category": "Épicerie",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Guacamole",
+        "category": "Épicerie",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Séré",
+        "category": "Produits Laitiers & Oeufs",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Sauce Salsa",
+        "category": "Épicerie",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Tortillas",
+        "category": "Épicerie",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Pain",
+        "category": "Épicerie",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Curry",
+        "category": "Épicerie",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Miel",
+        "category": "Épicerie",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Pain mbudget",
+        "category": "Épicerie",
+        "price": null,
+        "checked": true
+    },
+    {
+        "name": "Fromage carré",
+        "category": "Produits Laitiers & Oeufs",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Moutarde",
+        "category": "Épicerie",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Mayonnaise",
+        "category": "Épicerie",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Butternut",
+        "category": "Fruits & Légumes",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Viande hachée",
+        "category": "Viandes & Poissons",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Purée",
+        "category": "Épicerie",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Sauce tomate",
+        "category": "Épicerie",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Brocoli",
+        "category": "Fruits & Légumes",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Pain burger",
+        "category": "Épicerie",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Ketchup",
+        "category": "Épicerie",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Salade",
+        "category": "Fruits & Légumes",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Tomate",
+        "category": "Fruits & Légumes",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Céleri",
+        "category": "Fruits & Légumes",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Pois chiches",
+        "category": "Épicerie",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Spaghetti",
+        "category": "Épicerie",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Bouillon de légume",
+        "category": "Épicerie",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Coriandre",
+        "category": "Épicerie",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Pâte feuilletée",
+        "category": "Épicerie",
+        "price": null,
+        "checked": true
+    },
+    {
+        "name": "Feuille de brick",
+        "category": "Épicerie",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Poireau",
+        "category": "Fruits & Légumes",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Beurre",
+        "category": "Produits Laitiers & Oeufs",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Sauce Salade",
+        "category": "Épicerie",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Tortellinis",
+        "category": "Épicerie",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Salade russe",
+        "category": "Épicerie",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Pain toast complet",
+        "category": "Épicerie",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Sardines",
+        "category": "Viandes & Poissons",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Capsules de café",
+        "category": "Épicerie",
+        "price": null,
+        "checked": true
+    },
+    {
+        "name": "Trésors",
+        "category": "Autre",
+        "price": null,
+        "checked": true
+    },
+    {
+        "name": "Curcuma",
+        "category": "Épicerie",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Vinaigre",
+        "category": "Autre",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Mouchoirs",
+        "category": "Autre",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Lubrifiant",
+        "category": "Autre",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Pain au lait",
+        "category": "Épicerie",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Jus de fruit",
+        "category": "Épicerie",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Sac plastique",
+        "category": "Autre",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Sac biodégradable",
+        "category": "Autre",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Banane",
+        "category": "Fruits & Légumes",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Frites",
+        "category": "Épicerie",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Whey",
+        "category": "Autre",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Dentifrice",
+        "category": "Autre",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Produit vaisselle",
+        "category": "Autre",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Papier toilette",
+        "category": "Autre",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Sacs Poubelle",
+        "category": "Autre",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Papier ménage",
+        "category": "Autre",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Gratin dauphinois",
+        "category": "Fruits & Légumes",
+        "price": null,
+        "checked": true
+    },
+    {
+        "name": "Rösti",
+        "category": "Fruits & Légumes",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Saucisses de vienne",
+        "category": "Viandes & Poissons",
+        "price": null,
+        "checked": true
+    },
+    {
+        "name": "Chips",
+        "category": "Épicerie",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Bâtonnets de rösti",
+        "category": "Épicerie",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Flûtes",
+        "category": "Épicerie",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Café de paris",
+        "category": "Viandes & Poissons",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Faux-filets de boeuf",
+        "category": "Viandes & Poissons",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Houmous",
+        "category": "Épicerie",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Boisson",
+        "category": "Autre",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Papier sulfurisé",
+        "category": "Autre",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Sauce à salade",
+        "category": "Épicerie",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Noix cajou",
+        "category": "Épicerie",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Raclette",
+        "category": "Produits Laitiers & Oeufs",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Coton Tige",
+        "category": "Autre",
+        "price": null,
+        "checked": true
+    },
+    {
+        "name": "Sucre",
+        "category": "Épicerie",
+        "price": null,
+        "checked": false
+    },
+    {
+        "name": "Papier film",
+        "category": "Autre",
+        "price": null,
+        "checked": true
+    },
+    {
+        "name": "Cervelaz",
+        "category": "Viandes & Poissons",
+        "price": null,
+        "checked": true
+    },
+    {
+        "name": "Tresse",
+        "category": "Épicerie",
+        "price": null,
+        "checked": true
+    },
+    {
+        "name": "Ledhammer",
+        "category": "Produits Laitiers & Oeufs",
+        "price": null,
+        "checked": false
+    }
+]

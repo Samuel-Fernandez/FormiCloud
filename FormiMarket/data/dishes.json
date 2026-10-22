@@ -1,0 +1,438 @@
+[
+    {
+        "id": "8b9fccd8-6e7b-4a97-b24d-81fbe36ca0c7",
+        "name": "Pâtes aux crevettes",
+        "ingredients": [
+            "Crevettes",
+            "Pâtes",
+            "Crème",
+            "Persil",
+            "Ail",
+            "Gruyère"
+        ]
+    },
+    {
+        "id": "005b57aa-aec2-4d80-b4b3-715696ec0cd6",
+        "name": "Carottes à la marocaine",
+        "ingredients": [
+            "Carotte",
+            "Cumin",
+            "Riz",
+            "Cabillaud",
+            "Champignons de paris",
+            "Oignon",
+            "Crème"
+        ]
+    },
+    {
+        "id": "11c1b7fb-c035-4849-9353-8a4dfc4f9afb",
+        "name": "Salade de pâte",
+        "ingredients": [
+            "Mozarella",
+            "Pâtes",
+            "Tomate cerise",
+            "Concombre",
+            "Avocat",
+            "Maïs",
+            "Thon"
+        ]
+    },
+    {
+        "id": "35363e21-8a1d-4567-aab2-0a72c3c8b661",
+        "name": "Nouilles thaïlandaises",
+        "ingredients": [
+            "Vermicelles",
+            "Poulet",
+            "Poivron",
+            "Champignons de paris",
+            "Sauce soja"
+        ]
+    },
+    {
+        "id": "b9bcdfd5-8883-4b07-b02e-abb6c4d1ed2a",
+        "name": "Courgette farcie",
+        "ingredients": [
+            "Courgette",
+            "Gruyère",
+            "Tomate conserve",
+            "Thon"
+        ]
+    },
+    {
+        "id": "45c24d2f-7ba9-4613-8124-a4b5403b9f6c",
+        "name": "Pomme de terre four",
+        "ingredients": [
+            "Patate",
+            "Haricots vert",
+            "Poulet",
+            "Thym"
+        ]
+    },
+    {
+        "id": "44ebfaa1-fe10-496c-a88f-df1f7646f1b5",
+        "name": "Crêpes",
+        "ingredients": [
+            "Oeufs",
+            "Farine",
+            "Lait",
+            "Jambon",
+            "Gruyère",
+            "Lard",
+            "Saumon",
+            "Fromage aux herbes",
+            "Avocat"
+        ]
+    },
+    {
+        "id": "8f13c699-77c8-4426-8e42-e7588f928d01",
+        "name": "Pizza Coop",
+        "ingredients": [
+            "Pizza industrielle",
+            "Jambon",
+            "Gruyère",
+            "Thon",
+            "Tabasco",
+            "Mozarella",
+            "Champignons de paris",
+            "Olive"
+        ]
+    },
+    {
+        "id": "ab044853-54b1-4804-b744-7f61985fe698",
+        "name": "Riz ratatouille",
+        "ingredients": [
+            "Riz",
+            "Ratatouille",
+            "Poisson frit"
+        ]
+    },
+    {
+        "id": "6f518e4b-d564-40d7-8e9e-7671ecd31a48",
+        "name": "Riz lentilles",
+        "ingredients": [
+            "Riz",
+            "Lentilles",
+            "Poisson frit"
+        ]
+    },
+    {
+        "id": "0330612f-1b0a-4aa2-9fda-1b9e99545135",
+        "name": "Fajitas",
+        "ingredients": [
+            "Poulet",
+            "Guacamole",
+            "Séré",
+            "Poivron",
+            "Sauce Salsa",
+            "Tortillas"
+        ]
+    },
+    {
+        "id": "39ac8ecf-2bfa-4610-bd30-82b9c937064a",
+        "name": "Lbedoumatecha",
+        "ingredients": [
+            "Pain",
+            "Oeufs",
+            "Tomate conserve",
+            "Persil"
+        ]
+    },
+    {
+        "id": "036cb75c-6626-4a57-9edf-1774ea517e99",
+        "name": "Poulet curry",
+        "ingredients": [
+            "Poulet",
+            "Riz",
+            "Curry",
+            "Miel",
+            "Crème"
+        ]
+    },
+    {
+        "id": "dea9b651-0e2a-49a8-93cf-53c6dd8dd417",
+        "name": "Croque-Monsieur",
+        "ingredients": [
+            "Pain mbudget",
+            "Fromage carré",
+            "Jambon",
+            "Moutarde",
+            "Mayonnaise"
+        ]
+    },
+    {
+        "id": "78769f10-13bf-4af4-b07b-f2c73d50babe",
+        "name": "Soupe à la butternut",
+        "ingredients": [
+            "Butternut",
+            "Carotte",
+            "Ail",
+            "Oignon"
+        ]
+    },
+    {
+        "id": "ec156a01-02e9-432c-ac1f-33d5389c99f3",
+        "name": "Hachis Parmentier du chef",
+        "ingredients": [
+            "Viande hachée",
+            "Purée",
+            "Sauce tomate",
+            "Gruyère"
+        ]
+    },
+    {
+        "id": "c0d3aa52-022f-4c5d-b644-8ca4684bcf0d",
+        "name": "Brocolis saumonnés de la cheffe",
+        "ingredients": [
+            "Saumon",
+            "Brocoli",
+            "Crème",
+            "Champignons de paris"
+        ]
+    },
+    {
+        "id": "815f83bd-0421-4d00-bcd1-16c3f36c97c2",
+        "name": "Burgers maison et frites",
+        "ingredients": [
+            "Pain burger",
+            "Viande hachée",
+            "Oignon",
+            "Ketchup",
+            "Mayonnaise",
+            "Salade",
+            "Tomate",
+            "Patate",
+            "Fromage carré"
+        ]
+    },
+    {
+        "id": "c2bb08d9-b2f9-409b-9a0c-09e2217bbf57",
+        "name": "Chorba",
+        "ingredients": [
+            "Céleri",
+            "Sauce tomate",
+            "Pois chiches",
+            "Spaghetti",
+            "Oignon",
+            "Bouillon de légume",
+            "Coriandre"
+        ]
+    },
+    {
+        "id": "fdd75e46-b677-4392-9222-21f9cfb6f689",
+        "name": "Feuilleté thon légume",
+        "ingredients": [
+            "Pâte feuilletée",
+            "Thon",
+            "Poivron",
+            "Champignons de paris",
+            "Oignon",
+            "Gruyère"
+        ]
+    },
+    {
+        "id": "11366477-8502-4b7c-844b-eddc9a299774",
+        "name": "Samoussa",
+        "ingredients": [
+            "Feuille de brick",
+            "Purée",
+            "Thon",
+            "Fromage aux herbes"
+        ]
+    },
+    {
+        "id": "e067f4f9-29ad-4eec-8541-747bce272cc4",
+        "name": "Potage vert",
+        "ingredients": [
+            "Patate",
+            "Poireau",
+            "Oignon",
+            "Carotte",
+            "Courgette",
+            "Céleri"
+        ]
+    },
+    {
+        "id": "28fe7db7-a304-44ee-abd7-5239b9261f55",
+        "name": "Pâtes à la sauce tomate",
+        "ingredients": [
+            "Pâtes",
+            "Sauce tomate"
+        ]
+    },
+    {
+        "id": "072de83a-bfdc-4f9d-8cf9-24d1b5714c0d",
+        "name": "Pillons et pomme de terre au four",
+        "ingredients": [
+            "Patate",
+            "Haricots vert"
+        ]
+    },
+    {
+        "id": "b749c921-cd8b-43cf-a7a9-f63241ba04bd",
+        "name": "Douez",
+        "ingredients": [
+            "Patate",
+            "Poulet",
+            "Haricots vert",
+            "Oignon"
+        ]
+    },
+    {
+        "id": "1901f520-2bd8-4d69-a4b4-cf19f9f4ef4b",
+        "name": "Omelette aux champignons et fromage",
+        "ingredients": [
+            "Oeufs",
+            "Champignons de paris",
+            "Gruyère",
+            "Beurre"
+        ]
+    },
+    {
+        "id": "af301eee-0f31-46ee-b12e-48876ce75107",
+        "name": "Salade de la Nadia",
+        "ingredients": [
+            "Salade",
+            "Tomate cerise",
+            "Concombre",
+            "Sauce Salade"
+        ]
+    },
+    {
+        "id": "253ee8bf-6ffb-475d-8f00-520fba14b9c8",
+        "name": "Pâtes bolognaise",
+        "ingredients": [
+            "Patate",
+            "Gruyère",
+            "Sauce tomate",
+            "Viande hachée",
+            "Oignon"
+        ]
+    },
+    {
+        "id": "0dfd89b3-d3d9-4687-8da7-13e61b72c5a9",
+        "name": "Tortellinis",
+        "ingredients": [
+            "Tortellinis"
+        ]
+    },
+    {
+        "id": "b086d05d-e427-4f02-aec4-a9e0a4950f53",
+        "name": "Macédoine marocaine",
+        "ingredients": [
+            "Salade russe",
+            "Tomate"
+        ]
+    },
+    {
+        "id": "208524e0-11a3-4684-b91f-2940022b25df",
+        "name": "Salade de patate",
+        "ingredients": [
+            "Patate",
+            "Oignon",
+            "Thon",
+            "Mayonnaise"
+        ]
+    },
+    {
+        "id": "0389f03d-39c4-44d0-b5dd-a6c05b27b086",
+        "name": "CrudiWrap",
+        "ingredients": [
+            "Thon",
+            "Moutarde",
+            "Séré",
+            "Salade",
+            "Tomate",
+            "Oignon",
+            "Tortillas",
+            "Concombre"
+        ]
+    },
+    {
+        "id": "2af3437c-63be-4c88-bdf2-70d07678561d",
+        "name": "Pain toast complet avocaté",
+        "ingredients": [
+            "Avocat",
+            "Pain toast complet"
+        ]
+    },
+    {
+        "id": "6a56c6cc-1558-4e81-a31a-a7d6a0399f10",
+        "name": "Brocoli Saumonné du chef",
+        "ingredients": [
+            "Cabillaud",
+            "Crème de Soja",
+            "Brocoli",
+            "Champignons de paris",
+            "Ail",
+            "Persil"
+        ]
+    },
+    {
+        "id": "a633cdf1-cdfa-4063-80e7-f3e5ba34c573",
+        "name": "Légumes vapeur et poulet",
+        "ingredients": [
+            "Patate",
+            "Haricots",
+            "Brocolis",
+            "Blanc de poulet"
+        ]
+    },
+    {
+        "id": "1cf239c8-dd3d-4c95-b3af-0cfe61214e40",
+        "name": "Lentilles aux oeufs et au brocobeurk",
+        "ingredients": [
+            "Lentilles",
+            "Oeufs",
+            "Brocolis",
+            "Riz",
+            "Sauce tomate"
+        ]
+    },
+    {
+        "id": "c5eddf48-a592-4a4a-b2fa-5edafb7bc20c",
+        "name": "Gratin forestier de l'océan",
+        "ingredients": [
+            "Champignons de paris",
+            "Brocolis",
+            "Thon",
+            "Oeufs",
+            "Gruyère",
+            "Crème"
+        ]
+    },
+    {
+        "id": "2bab409a-166f-4b05-b844-22c4b13d340b",
+        "name": "Gratin dauphinois & poisson",
+        "ingredients": [
+            "Gratin dauphinois",
+            "Poisson frit"
+        ]
+    },
+    {
+        "id": "0de1b407-3a33-4766-85f2-0c4b353c2027",
+        "name": "Rösti & saucisse de vienne",
+        "ingredients": [
+            "Rösti",
+            "Saucisses de vienne"
+        ]
+    },
+    {
+        "id": "b18cfeee-7c30-4340-a2f5-6758ea96cae1",
+        "name": "Raclette",
+        "ingredients": [
+            "Raclette",
+            "Patate",
+            "Lard",
+            "Jambon"
+        ]
+    },
+    {
+        "id": "8be91d38-7337-4489-aa90-73d4ccb56793",
+        "name": "Pâtes aux oignons",
+        "ingredients": [
+            "Pâtes",
+            "Oignon",
+            "Blanc de poulet"
+        ]
+    }
+]
