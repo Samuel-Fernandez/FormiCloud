@@ -11,8 +11,18 @@ function App() {
     // Check if there's a redirect URL in the query parameters
     const params = new URLSearchParams(window.location.search);
     const redirect = params.get('redirect');
+    // N'accepter qu'un retour vers un sous-domaine de FormiCloud (évite la redirection ouverte)
     if (redirect) {
-      setRedirectUrl(redirect);
+      try {
+        const target = new URL(redirect);
+        const parent = window.location.hostname.split('.').slice(1).join('.');
+        const sameFamily = target.hostname === parent || target.hostname.endsWith('.' + parent);
+        if (target.protocol === 'https:' && sameFamily) {
+          setRedirectUrl(target.href);
+        }
+      } catch {
+        // URL invalide : on ignore
+      }
     }
   }, []);
 
@@ -37,7 +47,7 @@ function App() {
         if (redirectUrl) {
           window.location.href = redirectUrl;
         } else {
-          window.location.href = 'https://formicloud.duckdns.org';
+          window.location.href = 'https://' + window.location.hostname.split('.').slice(1).join('.');
         }
       } else {
         setError(data.message || 'Mot de passe incorrect');

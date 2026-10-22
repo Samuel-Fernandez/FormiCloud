@@ -1,3 +1,5 @@
+# SÉCURITÉ : les applications ne sont publiées que sur 172.17.0.1 (passerelle docker0),
+# que Nginx Proxy Manager atteint mais pas Internet. Seuls 80/443 sont ouverts au public.
 # Nom du projet = "proxy" pour conserver le réseau existant "proxy_default"
 # (les confs Nginx Proxy Manager joignent formiauth / formibudget par leur nom).
 name: proxy
@@ -9,7 +11,7 @@ services:
     restart: unless-stopped
     ports:
       - "80:80"
-      - "81:81"
+      - "127.0.0.1:81:81"   # admin NPM : accessible uniquement via tunnel SSH
       - "443:443"
     volumes:
       - ./proxy/data:/data
@@ -20,7 +22,7 @@ services:
     container_name: homepage
     restart: unless-stopped
     ports:
-      - "3000:3000"
+      - "172.17.0.1:3000:3000"
     environment:
       - HOMEPAGE_ALLOWED_HOSTS=${DOMAIN}
     volumes:
@@ -31,8 +33,6 @@ services:
     build: ./formiauth
     container_name: formiauth
     restart: unless-stopped
-    ports:
-      - "3005:3000"
     environment:
       - AUTH_PASSWORD=${AUTH_PASSWORD:?AUTH_PASSWORD manquant dans .env}
       - COOKIE_SECRET=${COOKIE_SECRET:?COOKIE_SECRET manquant dans .env}
@@ -43,7 +43,7 @@ services:
     container_name: formimarket
     restart: unless-stopped
     ports:
-      - "1000:1000"
+      - "172.17.0.1:1000:1000"
     volumes:
       - ./FormiMarket/data:/app/data
 
@@ -52,7 +52,7 @@ services:
     container_name: formitodo
     restart: unless-stopped
     ports:
-      - "1001:3000"
+      - "172.17.0.1:1001:3000"
     environment:
       - NODE_ENV=production
       - DB_PATH=/app/data/todo.db
@@ -65,7 +65,7 @@ services:
     container_name: formifit
     restart: unless-stopped
     ports:
-      - "1004:1004"
+      - "172.17.0.1:1004:1004"
     environment:
       - GOOGLE_API_KEY=${GOOGLE_API_KEY:?GOOGLE_API_KEY manquant dans .env}
     volumes:
