@@ -38,15 +38,6 @@ services:
       - COOKIE_SECRET=${COOKIE_SECRET:?COOKIE_SECRET manquant dans .env}
       - COOKIE_DOMAIN=.${DOMAIN}
 
-  formibudget:
-    build: ./Formibudget
-    container_name: formibudget
-    restart: unless-stopped
-    ports:
-      - "8010:8010"
-    volumes:
-      - formibudget-data:/data
-
   formimarket:
     build: ./FormiMarket
     container_name: formimarket
@@ -69,15 +60,6 @@ services:
       - ./todolist/data:/app/data
       - ./todolist/frontend:/frontend:ro
 
-  formiguessup:
-    build: ./guessup
-    container_name: formiguessup
-    restart: unless-stopped
-    ports:
-      - "1002:1000"
-    environment:
-      - OPENAI_API_KEY=${OPENAI_API_KEY:?OPENAI_API_KEY manquant dans .env}
-
   formifit:
     build: ./FormiFit
     container_name: formifit
@@ -88,8 +70,3 @@ services:
       - GOOGLE_API_KEY=${GOOGLE_API_KEY:?GOOGLE_API_KEY manquant dans .env}
     volumes:
       - ./FormiFit/data:/app/data
-
-volumes:
-  formibudget-data:
-    # nom d'origine (projet "formibudget") pour retrouver les données existantes
-    name: formibudget_formibudget-data
