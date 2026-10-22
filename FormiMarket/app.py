@@ -1,8 +1,17 @@
-from flask import Flask, render_template, request, redirect, url_for, jsonify
+from flask import Flask, render_template, request, redirect, url_for, jsonify, g
 import json
 import os
+import threading
 
 app = Flask(__name__)
+
+CATEGORY_ORDER = [
+    "Fruits", "Légumes", "Herbes & Épices", "Viandes", "Charcuterie",
+    "Poissons & Fruits de mer", "Crèmerie & Oeufs", "Fromages",
+    "Pains & Viennoiseries", "Pâtes, Riz & Légumineuses", "Sauces & Condiments",
+    "Conserves & Bouillons", "Pâtisserie & Sucré", "Plats préparés & Surgelés",
+    "Apéro & Snacks", "Boissons & Café", "Hygiène & Santé", "Entretien & Maison",
+]
 
 import uuid
 
@@ -23,8 +32,7 @@ def load_ingredients():
 
 def save_ingredients(ingredients):
     """Sauvegarde la liste des ingrédients dans le fichier JSON."""
-    with open(DATA_FILE, 'w', encoding='utf-8') as f:
-        json.dump(ingredients, f, indent=4, ensure_ascii=False)
+    write_json(DATA_FILE, ingredients)
 
 def load_dishes():
     """Charge la liste des plats depuis le fichier JSON."""
@@ -38,8 +46,7 @@ def load_dishes():
 
 def save_dishes(dishes):
     """Sauvegarde la liste des plats dans le fichier JSON."""
-    with open(DATA_DISHES_FILE, 'w', encoding='utf-8') as f:
-        json.dump(dishes, f, indent=4, ensure_ascii=False)
+    write_json(DATA_DISHES_FILE, dishes)
 
 def load_schedule():
     """Charge le planning de la semaine, crée des jours vides par défaut si innexistant."""
@@ -53,8 +60,59 @@ def load_schedule():
 
 def save_schedule(schedule):
     """Sauvegarde le planning de la semaine dans le fichier JSON."""
-    with open(DATA_SCHEDULE_FILE, 'w', encoding='utf-8') as f:
-        json.dump(schedule, f, indent=4, ensure_ascii=False)
+    write_json(DATA_SCHEDULE_FILE, schedule)
+
+# --- Synchronisation temps réel -------------------------------------------
+# Toutes les écritures (POST) sont sérialisées par un verrou pour éviter que deux
+# requêtes simultanées ne s'écrasent (lecture -> modification -> écriture).
+write_lock = threading.RLock()
+
+def write_json(path, data):
+    """Écrit le JSON de façon atomique : les lecteurs ne voient jamais un fichier à moitié écrit."""
+    tmp = path + '.tmp'
+    with open(tmp, 'w', encoding='utf-8') as f:
+        json.dump(data, f, indent=4, ensure_ascii=False)
+    os.replace(tmp, path)
+
+def data_version():
+    """Empreinte des fichiers de données : change dès qu'une modification est enregistrée."""
+    parts = []
+    for path in (DATA_FILE, DATA_DISHES_FILE, DATA_SCHEDULE_FILE):
+        try:
+            st = os.stat(path)
+            parts.append(f"{st.st_mtime_ns}-{st.st_size}")
+        except OSError:
+            parts.append('0')
+    return '.'.join(parts)
+
+@app.before_request
+def lock_writes():
+    if request.method == 'POST':
+        write_lock.acquire()
+        g.write_locked = True
+
+@app.after_request
+def release_and_stamp(response):
+    # Indique la version courante au client (avant de libérer le verrou), puis libère le verrou
+    response.headers['X-Data-Version'] = data_version()
+    response.headers['Cache-Control'] = 'no-store'
+    if g.pop('write_locked', False):
+        write_lock.release()
+    return response
+
+@app.teardown_request
+def release_on_error(exc):
+    if g.pop('write_locked', False):
+        write_lock.release()
+
+@app.context_processor
+def inject_version():
+    return {'data_version': data_version()}
+
+@app.route('/api/version')
+def api_version():
+    """Interrogée régulièrement par les pages ouvertes pour détecter les changements d'un autre utilisateur."""
+    return jsonify({'version': data_version()})
 
 @app.route('/')
 def index():
@@ -212,8 +270,11 @@ def shopping_list():
             grouped_ingredients[cat] = []
         grouped_ingredients[cat].append(ingredient)
 
-    # Sort categories alphabetically
-    sorted_categories = sorted(grouped_ingredients.keys())
+    # Sort categories in store-walk order; unknown/custom ones go last, alphabetically
+    sorted_categories = sorted(
+        grouped_ingredients.keys(),
+        key=lambda c: (CATEGORY_ORDER.index(c) if c in CATEGORY_ORDER else len(CATEGORY_ORDER), c)
+    )
     
     return render_template('shopping_list.html', grouped_ingredients=grouped_ingredients, sorted_categories=sorted_categories)
 

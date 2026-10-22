@@ -1,44 +1,37 @@
 (function initRomanticAnimation() {
-  // In Next.js, DOMContentLoaded might have already fired, or we might be too early.
-  // We wait until document.body is available.
+  // Wait until document.body is available (Next.js may run us too early).
   if (!document.body) {
     requestAnimationFrame(initRomanticAnimation);
     return;
   }
-  
-  // Create the overlay container
+
+  // Flowers blooming on an ellipse around the title (transform/opacity only: cheap)
+  const flowerChars = ["🌸", "🌷", "🌹", "🌸", "💮", "🌺"];
+  const count = 12;
+  const flowers = Array.from({ length: count }, (_, i) => {
+    const angle = (i / count) * Math.PI * 2 + 0.3;
+    const x = Math.cos(angle) * 34; // vw
+    const y = Math.sin(angle) * 22; // vh
+    const size = 1.6 + (i % 3) * 0.5; // rem
+    const delay = 0.24 + (i % 4) * 0.06;
+    const spin = (i % 2 ? 1 : -1) * (40 + (i % 3) * 20);
+    return `<span class="flower" style="--x:${x.toFixed(1)}vw;--y:${y.toFixed(1)}vh;--s:${size}rem;--d:${delay}s;--r:${spin}deg">${flowerChars[i % flowerChars.length]}</span>`;
+  }).join("");
+
   const introDiv = document.createElement("div");
   introDiv.id = "romantic-intro";
-  
-  const text = "FormiCloud";
-  
-  // Create spans for each letter with a staggered --i variable for CSS
-  const lettersHtml = text.split('').map((char, index) => {
-    return `<span style="--i: ${index}">${char}</span>`;
-  }).join('');
-  
-  // Add the heart at the end
-  const heartHtml = `<span class="heart" style="--i: ${text.length}">❤️</span>`;
-  
   introDiv.innerHTML = `
+    ${flowers}
     <div class="romantic-text">
-      ${lettersHtml}
-      ${heartHtml}
+      <span class="heart">❤️</span>
+      <span class="word">FormiCloud</span>
     </div>
   `;
-  
-  // Prepend to body so it sits on top immediately
   document.body.prepend(introDiv);
-  
-  // Let the animation play (letters take ~2 seconds total to finish appearing)
-  // Then we wait a tiny bit to admire it, and fade out.
+
+  // 1s total: animation ends at ~0.76s, then a 0.24s fade-out and cleanup.
   setTimeout(() => {
     introDiv.classList.add("fade-out");
-    
-    // Completely remove it from the DOM after the fade out transition (0.8s)
-    setTimeout(() => {
-      introDiv.remove();
-    }, 1000);
-    
-  }, 2500); // 2.5 seconds total screen time
+    setTimeout(() => introDiv.remove(), 240);
+  }, 760);
 })();
