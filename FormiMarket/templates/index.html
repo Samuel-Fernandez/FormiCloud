@@ -1,0 +1,364 @@
+{% extends 'base.html' %}
+
+{% block title %}Planning - FormiMarket{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Additions for Drag & Drop and Autocomplete, keeping original layout */
+    .schedule-container {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        padding: 10px;
+        padding-bottom: 80px;
+        /* Space for bottom nav */
+    }
+
+    .day-row {
+        background-color: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        /* overflow: hidden; REMOVED to allow dropdown to show */
+        display: flex;
+        /* Changed to flex row for horizontal layout */
+        flex-direction: row;
+        position: relative;
+        transition: z-index 0.1s;
+        /* Smooth transition if needed */
+    }
+
+    /* CRITICAL FIX: Ensure the row being edited is ON TOP of subsequent rows */
+    .day-row:focus-within {
+        z-index: 1000;
+    }
+
+    .day-row:hover {
+        z-index: 999;
+    }
+
+    .day-header {
+        background-color: var(--primary-color);
+        color: white;
+        padding: 8px 15px;
+        font-weight: 600;
+        font-size: 0.9em;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-radius: 12px 12px 0 0;
+        /* Add radius here since overflow is gone */
+    }
+
+    .day-label {
+        background-color: var(--primary-color);
+        color: white;
+        padding: 8px 15px;
+        font-weight: 600;
+        font-size: 0.9em;
+        display: flex;
+        align-items: center;
+        border-radius: 12px 0 0 12px;
+        /* Rounded left side */
+    }
+
+    .day-content {
+        /* Ensure we don't break the flex layout from style.css */
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        position: relative;
+        /* For absolute positioning of suggestions */
+        padding: 10px;
+        /* Ensure content is visible */
+        overflow: visible;
+        flex-grow: 1;
+        /* Take remaining space */
+        border-radius: 0 12px 12px 0;
+        /* Rounded right side */
+    }
+
+    .day-content.drag-over {
+        background-color: #e3f2fd;
+        border: 2px dashed var(--primary-color);
+    }
+
+    .dish-card {
+        background-color: var(--base3);
+        /* Use theme color */
+        border: 1px solid var(--base2);
+        border-radius: 6px;
+        padding: 8px 12px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: grab;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        touch-action: none;
+    }
+
+    .dish-card:active {
+        cursor: grabbing;
+    }
+
+    .dish-name {
+        font-weight: 500;
+        color: var(--base02);
+    }
+
+    .remove-dish {
+        color: var(--red);
+        cursor: pointer;
+        padding: 4px;
+        font-size: 0.9em;
+        opacity: 0.6;
+        transition: opacity 0.2s;
+    }
+
+    .remove-dish:hover {
+        opacity: 1;
+    }
+
+    .add-dish-container {
+        margin-top: auto;
+        /* Push to bottom if content expands */
+        position: relative;
+    }
+
+    .add-dish-input {
+        width: 100%;
+        padding: 6px 10px;
+        border: 1px dashed var(--base1);
+        border-radius: 4px;
+        font-size: 0.9em;
+        background-color: transparent;
+        color: var(--base00);
+        box-sizing: border-box;
+        /* Fix width overflow */
+    }
+
+    .add-dish-input:focus {
+        border-style: solid;
+        border-color: var(--primary-color);
+        background-color: white;
+        outline: none;
+    }
+
+    .suggestions-list {
+        position: absolute;
+        top: 100%;
+        /* Show BELOW the input */
+        left: 0;
+        right: 0;
+        background: white;
+        border: 1px solid var(--base2);
+        border-radius: 0 0 4px 4px;
+        max-height: 200px;
+        overflow-y: auto;
+        z-index: 10000;
+        /* Very high z-index to overlap other rows */
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        display: none;
+    }
+
+    .suggestion-item {
+        padding: 8px 12px;
+        cursor: pointer;
+        border-bottom: 1px solid #f0f0f0;
+        font-size: 0.9em;
+    }
+
+    .suggestion-item:last-child {
+        border-bottom: none;
+    }
+
+    .suggestion-item:hover {
+        background-color: var(--base2);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="schedule-container">
+    {% set days = [('Lundi', 'Lu'), ('Mardi', 'Ma'), ('Mercredi', 'Me'), ('Jeudi', 'Je'), ('Vendredi', 'Ve'), ('Samedi',
+    'Sa'), ('Dimanche', 'Di')] %}
+    {% for full_day, short_day in days %}
+    <!-- day-row structure from style.css: flex row -->
+    <div class="day-row" id="day-{{ full_day }}">
+        <div class="day-label">{{ short_day }}</div>
+        <div class="day-content" data-day="{{ full_day }}" ondrop="drop(event)" ondragover="allowDrop(event)">
+            <!-- Render existing dishes from schedule -->
+            {% for item in schedule[full_day] %}
+            <div class="dish-card" draggable="true" ondragstart="drag(event)" data-id="{{ item.id }}">
+                <span class="dish-name">{{ item.name }}</span>
+                <i class="fas fa-times remove-dish" onclick="removeDish(this)"></i>
+            </div>
+            {% endfor %}
+
+            <div class="add-dish-container">
+                <input type="text" class="add-dish-input" placeholder="+" oninput="showSuggestions(this)"
+                    onfocus="showSuggestions(this)">
+                <div class="suggestions-list"></div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Load dishes from Flask
+    const allDishes = {{ dishes| tojson | safe }};
+
+    // Helper for fuzzy search
+    function normalizeStr(str) {
+        return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+    }
+
+    // --- Drag and Drop Logic ---
+    let draggedElement = null;
+
+    function allowDrop(ev) {
+        ev.preventDefault();
+        ev.currentTarget.classList.add('drag-over');
+    }
+
+    function leaveDrop(ev) {
+        ev.currentTarget.classList.remove('drag-over');
+    }
+
+    function drag(ev) {
+        draggedElement = ev.target; // The .dish-card
+        ev.dataTransfer.effectAllowed = "move";
+    }
+
+    function drop(ev) {
+        ev.preventDefault();
+        ev.currentTarget.classList.remove('drag-over');
+
+        const dropZone = ev.target.closest('.day-content');
+        if (dropZone && draggedElement) {
+            // Check if dropped in same day
+            const fromDayRow = draggedElement.closest('.day-content');
+            if (fromDayRow === dropZone) return;
+
+            // Move in UI
+            const addContainer = dropZone.querySelector('.add-dish-container');
+            dropZone.insertBefore(draggedElement, addContainer);
+
+            // Call API
+            const itemId = draggedElement.dataset.id;
+            const toDay = dropZone.dataset.day;
+
+            fetch('/api/planner/move', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ item_id: itemId, to_day: toDay })
+            });
+        }
+    }
+
+    document.querySelectorAll('.day-content').forEach(el => {
+        el.addEventListener('dragleave', leaveDrop);
+    });
+
+
+    // --- Autocomplete & Add Logic ---
+
+    function createDishCard(dishName, id) {
+        const div = document.createElement('div');
+        div.className = 'dish-card';
+        div.draggable = true;
+        div.ondragstart = drag;
+        div.dataset.id = id;
+
+        div.innerHTML = `
+            <span class="dish-name">${dishName}</span>
+            <i class="fas fa-times remove-dish" onclick="removeDish(this)"></i>
+        `;
+        return div;
+    }
+
+    function removeDish(element) {
+        if (confirm('Voulez-vous retirer ce plat ?')) {
+            const card = element.parentElement;
+            const itemId = card.dataset.id;
+
+            card.remove();
+
+            fetch('/api/planner/remove', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ item_id: itemId })
+            });
+        }
+    }
+
+    function showSuggestions(input) {
+        const rawVal = input.value;
+        const val = normalizeStr(rawVal);
+        const list = input.nextElementSibling; // List is AFTER input
+
+        list.innerHTML = '';
+
+        if (!rawVal) {
+            list.style.display = 'none';
+            return;
+        }
+
+        const matches = allDishes.filter(d => {
+            const name = normalizeStr(d.name);
+            return name.includes(val);
+        });
+
+        if (matches.length > 0) {
+            matches.forEach(dish => {
+                const item = document.createElement('div');
+                item.className = 'suggestion-item';
+                item.textContent = dish.name;
+                item.onclick = () => selectDish(input, dish);
+                list.appendChild(item);
+            });
+            list.style.display = 'block';
+        } else {
+            list.style.display = 'none';
+        }
+    }
+
+    function selectDish(input, dish) {
+        input.value = '';
+        input.nextElementSibling.style.display = 'none'; // Hide list
+
+        const dayContent = input.closest('.day-content');
+        const day = dayContent.dataset.day;
+
+        // Call API
+        fetch('/api/planner/add', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ dish_name: dish.name, day: day }),
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Add to UI
+                    const addContainer = dayContent.querySelector('.add-dish-container');
+                    const card = createDishCard(dish.name, data.item.id);
+                    dayContent.insertBefore(card, addContainer);
+                    console.log('Ajouté et sauvegardé');
+                } else {
+                    alert('Erreur: ' + data.message);
+                }
+            });
+    }
+
+    // Close suggestions when clicking outside
+    document.addEventListener('click', function (e) {
+        if (!e.target.matches('.add-dish-input')) {
+            document.querySelectorAll('.suggestions-list').forEach(el => el.style.display = 'none');
+        }
+    });
+</script>
+{% endblock %}

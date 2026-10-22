@@ -1,0 +1,48 @@
+<table>
+  <thead>
+    <tr>
+      <th>Catégorie</th>
+      <th class="amount">Dépensé cette semaine</th>
+      <th class="amount">Limite hebdo.</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for ct in week.category_totals %}
+    <tr>
+      <td>
+        {{ ct.category.name }}
+        {% if ct.over_limit %}<span class="warning-flag">Limite dépassée</span>{% endif %}
+        {% if ct.limit %}
+        <div class="category-limit-bar">
+          <div class="fill {{ 'over' if ct.over_limit else '' }}"
+               style="width: {{ [100, (ct.spent / ct.limit * 100) if ct.limit else 0]|min }}%;"></div>
+        </div>
+        {% endif %}
+      </td>
+      <td class="amount">{{ "%.2f"|format(ct.spent) }} CHF</td>
+      <td class="amount">{{ "%.2f"|format(ct.limit) if ct.limit is not none else "—" }}</td>
+      <td>
+        <form method="post" action="/categories/{{ ct.category.id }}/delete/{{ week.week_start.isoformat() }}" style="display:inline;">
+          <button type="submit" class="secondary">Supprimer</button>
+        </form>
+      </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="4" style="color: var(--ink-soft);">Aucune catégorie pour l'instant.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<form class="inline-form" method="post" action="/categories">
+  <input type="hidden" name="week_start" value="{{ week.week_start.isoformat() }}">
+  <div class="field">
+    <label>Nom</label>
+    <input type="text" name="name" required>
+  </div>
+  <div class="field">
+    <label>Limite hebdo. (CHF, optionnel)</label>
+    <input type="number" step="0.01" name="weekly_limit">
+  </div>
+  <button type="submit">Créer la catégorie</button>
+</form>

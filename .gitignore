@@ -33,7 +33,3 @@ todolist/backend/test.png
 Thumbs.db
 .vscode/
 .idea/
-
-# Apps ayant déjà leur propre dépôt git (voir README)
-FormiMarket/
-Formibudget/

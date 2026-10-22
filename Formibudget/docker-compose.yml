@@ -1,0 +1,18 @@
+services:
+  formibudget:
+    build: .
+    container_name: formibudget
+    restart: unless-stopped
+    ports:
+      - "8010:8010"
+    volumes:
+      - formibudget-data:/data
+    networks:
+      - proxy_default
+
+networks:
+  proxy_default:
+    external: true
+
+volumes:
+  formibudget-data:

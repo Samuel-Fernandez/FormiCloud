@@ -1,0 +1,662 @@
+{% extends 'base.html' %}
+
+{% block title %}Formibase - FormiMarket{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Formibase specific styles */
+    .search-bar-container {
+        margin-bottom: 20px;
+        position: sticky;
+        top: 0;
+        background-color: var(--background-color);
+        z-index: 10;
+        padding: 10px 0;
+    }
+
+    .search-input {
+        width: 100%;
+        padding: 12px 15px;
+        border: 2px solid var(--border-color);
+        border-radius: 12px;
+        font-size: 1rem;
+        background-color: var(--card-bg);
+        color: var(--text-color);
+        transition: all 0.3s ease;
+    }
+
+    .search-input:focus {
+        border-color: var(--primary-color);
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2);
+    }
+
+    .dishes-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 15px;
+        padding-bottom: 80px;
+        /* Space for FAB and nav */
+    }
+
+    @media (max-width: 768px) {
+        .dishes-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 480px) {
+        .dishes-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .dish-card {
+        background-color: var(--card-bg);
+        border-radius: 16px;
+        padding: 15px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+        border: 1px solid var(--border-color);
+    }
+
+    .dish-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .dish-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 10px;
+        color: var(--text-color);
+    }
+
+    .dish-ingredients-preview {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        /* Standard property for compatibility */
+        line-clamp: 3;
+    }
+
+    .dish-ingredient-item {
+        margin-bottom: 2px;
+    }
+
+    /* Floating Action Button */
+    .fab-add {
+        position: fixed;
+        bottom: 100px;
+        /* Raised to clear nav */
+        right: 20px;
+        width: 60px;
+        height: 60px;
+        background-color: var(--primary-color);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        box-shadow: 0 4px 10px rgba(74, 144, 226, 0.4);
+        border: none;
+        cursor: pointer;
+        transition: transform 0.2s, background-color 0.2s;
+        z-index: 100;
+    }
+
+    .fab-add:hover {
+        transform: scale(1.05);
+        background-color: #3a7bc8;
+    }
+
+    /* Ingredient Chips in Modal */
+    .ingredient-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 10px;
+        margin-bottom: 10px;
+    }
+
+    .ingredient-chip {
+        background-color: #e3effd;
+        color: var(--primary-color);
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .ingredient-chip .remove-chip {
+        cursor: pointer;
+        font-weight: bold;
+        opacity: 0.7;
+    }
+
+    .ingredient-chip .remove-chip:hover {
+        opacity: 1;
+    }
+
+    /* Custom Dropdown Styles */
+    .custom-dropdown {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        background-color: var(--base3);
+        /* Assuming base3 is from style.css var */
+        background-color: #fdf6e3;
+        /* Fallback */
+        border: 1px solid #eee8d5;
+        border-radius: 4px;
+        list-style: none;
+        padding: 0;
+        margin: 4px 0 0;
+        z-index: 1200;
+        /* Increased to stay above modal backdrop and content */
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        max-height: 200px;
+        overflow-y: auto;
+    }
+
+    .custom-dropdown li {
+        padding: 10px;
+        cursor: pointer;
+        color: var(--text-color);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .custom-dropdown li:hover {
+        background-color: #eee8d5;
+        /* base2 */
+        color: #cb4b16;
+        /* orange */
+    }
+
+    .create-option {
+        font-weight: bold;
+        color: #cb4b16 !important;
+        /* primary/orange */
+        border-top: 1px dashed #eee8d5;
+        background-color: #fcf8e3;
+    }
+
+    .add-ingredient-input-container {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 5px;
+        position: relative;
+        /* For dropdown positioning */
+    }
+
+    .add-ingredient-wrapper {
+        flex-grow: 1;
+        position: relative;
+    }
+
+    .add-ingredient-btn {
+        background-color: var(--secondary-color);
+        color: white;
+        border: none;
+        padding: 0 15px;
+        border-radius: 8px;
+        cursor: pointer;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="search-bar-container">
+        <input type="text" id="search-input" class="search-input" placeholder="Rechercher un plat..."
+            oninput="filterDishes()">
+    </div>
+
+    <div id="dishes-grid" class="dishes-grid">
+        {% for dish in dishes %}
+        <div class="dish-card" onclick="openEditDishModal('{{ dish.id }}')" data-name="{{ dish.name }}">
+            <div class="dish-title">{{ dish.name }}</div>
+            <div class="dish-ingredients-preview">
+                {% for ingredient in dish.ingredients[:3] %}
+                <div class="dish-ingredient-item">• {{ ingredient }}</div>
+                {% endfor %}
+                {% if dish.ingredients|length > 3 %}
+                <div class="dish-ingredient-item">... (+{{ dish.ingredients|length - 3 }})</div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <button class="fab-add" onclick="openAddDishModal()">
+        <i class="fas fa-plus"></i>
+    </button>
+</div>
+
+<!-- Add/Edit Dish Modal -->
+<div id="dish-modal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal" onclick="closeDishModal()">&times;</span>
+        <h3 id="modal-title">Ajouter un plat</h3>
+        <form id="dish-form" onsubmit="saveDish(event)">
+            <input type="hidden" id="dish-id">
+            <div class="form-group">
+                <label for="dish-name">Nom du plat</label>
+                <input type="text" id="dish-name" class="form-input" required placeholder="Ex: Lasagnes">
+            </div>
+
+            <div class="form-group">
+                <label>Ingrédients</label>
+                <div class="add-ingredient-input-container">
+                    <div class="add-ingredient-wrapper">
+                        <input type="text" id="ingredient-input" class="form-input"
+                            placeholder="Ajouter un ingrédient..." autocomplete="off">
+                        <ul id="ingredient-dropdown" class="custom-dropdown"></ul>
+                    </div>
+                    <button type="button" class="add-ingredient-btn" onclick="addIngredientConfig()">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+
+                <div id="ingredient-chips" class="ingredient-chips">
+                    <!-- Chips will be added here -->
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button type="submit" class="btn-save" id="btn-save-dish">Enregistrer</button>
+                <button type="button" class="btn-delete-modal" id="btn-delete-dish" onclick="deleteDish()"
+                    style="display: none;">
+                    <i class="fas fa-trash"></i> Supprimer
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- New Ingredient Details Modal -->
+<div id="new-ingredient-modal" class="modal" style="display: none; z-index: 1100;">
+    <div class="modal-content" style="margin-top: 20%;">
+        <span class="close-modal" onclick="closeNewIngredientModal()">&times;</span>
+        <h3>Détails du nouvel ingrédient</h3>
+        <form onsubmit="confirmNewIngredient(event)">
+            <div class="form-group">
+                <label>Nom</label>
+                <input type="text" id="new-ing-name" class="form-input" readonly>
+            </div>
+            <div class="form-group" style="position: relative;">
+                <label>Catégorie</label>
+                <input type="text" id="new-ing-category" class="form-input" required placeholder="Ex: Fruits & Légumes"
+                    autocomplete="off">
+                <!-- Dropdown specifically for this category input -->
+                <ul id="new-ing-category-dropdown" class="custom-dropdown"></ul>
+            </div>
+            <div class="form-group">
+                <label>Prix (Facultatif)</label>
+                <input type="number" step="0.01" id="new-ing-price" class="form-input" placeholder="0.00">
+            </div>
+            <div class="modal-actions">
+                <button type="submit" class="btn-save">Confirmer</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Embed dishes data safely for JS
+    const serverDishes = {{ dishes| tojson }};
+    const availableIngredients = {{ available_ingredients| tojson }};
+</script>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let currentIngredients = [];
+    let isEditing = false;
+    let newIngredientsDetails = {}; // Stores { "Name": { category: "...", price: ... } }
+    let pendingIngredientName = "";
+
+    // Filter Dishes
+    function filterDishes() {
+        const query = document.getElementById('search-input').value.toLowerCase();
+        const cards = document.querySelectorAll('.dish-card');
+
+        cards.forEach(card => {
+            const name = card.getAttribute('data-name').toLowerCase();
+            if (name.includes(query)) {
+                card.style.display = 'block';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
+
+    // Custom Dropdown Logic
+    const ingredientInput = document.getElementById('ingredient-input');
+    const ingredientDropdown = document.getElementById('ingredient-dropdown');
+
+    function showDropdown(filterText = '') {
+        ingredientDropdown.innerHTML = '';
+        const allNames = availableIngredients.map(ing => ing.name);
+
+        // Exclude already selected
+        const candidates = allNames.filter(name => !currentIngredients.includes(name));
+
+        const filtered = candidates.filter(name => name.toLowerCase().includes(filterText.toLowerCase()));
+
+        // Check exact match
+        const exactMatch = candidates.some(name => name.toLowerCase() === filterText.toLowerCase());
+
+        if (filtered.length === 0 && !filterText) {
+            ingredientDropdown.style.display = 'none';
+            return;
+        }
+
+        // Add standard options
+        filtered.forEach(name => {
+            const li = document.createElement('li');
+            li.textContent = name;
+            li.addEventListener('click', () => {
+                ingredientInput.value = name;
+                ingredientDropdown.style.display = 'none';
+                addIngredientConfig(); // Auto add on click
+            });
+            ingredientDropdown.appendChild(li);
+        });
+
+        // Add "Create" option if text exists and no exact match
+        if (filterText && !exactMatch && !currentIngredients.includes(filterText)) {
+            const createLi = document.createElement('li');
+            createLi.textContent = `+ Créer "${filterText}"`;
+            createLi.className = 'create-option';
+            createLi.addEventListener('click', () => {
+                // Open new ingredient modal instead of adding directly
+                ingredientDropdown.style.display = 'none';
+                openNewIngredientModal(filterText);
+            });
+            ingredientDropdown.appendChild(createLi);
+        }
+
+        if (ingredientDropdown.children.length > 0) {
+            ingredientDropdown.style.display = 'block';
+        } else {
+            ingredientDropdown.style.display = 'none';
+        }
+    }
+
+    ingredientInput.addEventListener('input', (e) => showDropdown(e.target.value));
+    ingredientInput.addEventListener('focus', () => showDropdown(ingredientInput.value));
+
+    // Hide when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!ingredientInput.contains(e.target) && !ingredientDropdown.contains(e.target)) {
+            ingredientDropdown.style.display = 'none';
+        }
+    });
+
+    // New Ingredient Details Logic
+    function openNewIngredientModal(name) {
+        pendingIngredientName = name;
+        document.getElementById('new-ing-name').value = name;
+        document.getElementById('new-ing-category').value = '';
+        document.getElementById('new-ing-price').value = '';
+        document.getElementById('new-ingredient-modal').style.display = 'block';
+        document.getElementById('new-ing-category').focus();
+    }
+
+    function closeNewIngredientModal() {
+        document.getElementById('new-ingredient-modal').style.display = 'none';
+    }
+
+    function confirmNewIngredient(event) {
+        event.preventDefault();
+        const category = document.getElementById('new-ing-category').value.trim();
+        const price = document.getElementById('new-ing-price').value;
+
+        if (!category) {
+            alert('La catégorie est requise.');
+            return;
+        }
+
+        newIngredientsDetails[pendingIngredientName] = {
+            category: category,
+            price: price
+        };
+
+        // Add to list
+        const input = document.getElementById('ingredient-input');
+        input.value = pendingIngredientName;
+        addIngredientConfig(true); // true = skip existence check/alert since we know it's new
+
+        closeNewIngredientModal();
+    }
+
+    // Initialize Category Dropdown Listeners ONCE
+    function setupCategoryDropdown() {
+        const catInput = document.getElementById('new-ing-category');
+        const catDropdown = document.getElementById('new-ing-category-dropdown');
+
+        // Extract unique categories from availableIngredients
+        const categories = [...new Set(availableIngredients.map(i => i.category))].sort();
+
+        function showCatDropdown(filterText = '') {
+            catDropdown.innerHTML = '';
+            const filtered = categories.filter(c => c.toLowerCase().includes(filterText.toLowerCase()));
+
+            if (filtered.length === 0) {
+                catDropdown.style.display = 'none';
+                return;
+            }
+
+            filtered.forEach(cat => {
+                const li = document.createElement('li');
+                li.textContent = cat;
+                li.addEventListener('click', () => {
+                    catInput.value = cat;
+                    catDropdown.style.display = 'none';
+                });
+                catDropdown.appendChild(li);
+            });
+            catDropdown.style.display = 'block';
+        }
+
+        catInput.addEventListener('input', (e) => showCatDropdown(e.target.value));
+        catInput.addEventListener('focus', () => showCatDropdown(catInput.value));
+
+        // Use document click handler to hide (delegated or separate)
+        // Note: we can share the document click logic if we want, or add another one
+        document.addEventListener('click', (e) => {
+            if (!catInput.contains(e.target) && !catDropdown.contains(e.target)) {
+                catDropdown.style.display = 'none';
+            }
+        });
+    }
+
+    // Call setup once
+    setupCategoryDropdown();
+
+    // Open Modal for Adding
+    function openAddDishModal() {
+        isEditing = false;
+        document.getElementById('modal-title').textContent = 'Ajouter un plat';
+        document.getElementById('dish-id').value = '';
+        document.getElementById('dish-name').value = '';
+        document.getElementById('btn-delete-dish').style.display = 'none';
+
+        currentIngredients = [];
+        newIngredientsDetails = {};
+        renderChips();
+
+        document.getElementById('dish-modal').style.display = 'block';
+        document.getElementById('dish-name').focus();
+    }
+
+    // Open Modal for Editing
+    function openEditDishModal(dishId) {
+        const dish = serverDishes.find(d => d.id === dishId);
+        if (!dish) return;
+
+        isEditing = true;
+        document.getElementById('modal-title').textContent = 'Modifier le plat';
+        document.getElementById('dish-id').value = dish.id;
+        document.getElementById('dish-name').value = dish.name;
+        document.getElementById('btn-delete-dish').style.display = 'inline-flex';
+
+        currentIngredients = [...dish.ingredients];
+        newIngredientsDetails = {};
+        renderChips();
+
+        document.getElementById('dish-modal').style.display = 'block';
+    }
+
+    function closeDishModal() {
+        document.getElementById('dish-modal').style.display = 'none';
+        newIngredientsDetails = {}; // Reset
+    }
+
+    // Ingredient Management
+    function addIngredientConfig(forceAdd = false) {
+        const input = document.getElementById('ingredient-input');
+        const val = input.value.trim();
+
+        if (!val) return;
+
+        if (!currentIngredients.includes(val)) {
+            currentIngredients.push(val);
+            renderChips();
+            input.value = '';
+            input.focus();
+        } else if (!forceAdd) {
+            alert('Cet ingrédient est déjà dans la liste.');
+            input.value = '';
+        }
+    }
+
+    // Add ingredient on Enter key in the ingredient input
+    document.getElementById('ingredient-input').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') {
+            e.preventDefault(); // Prevent form submission
+            const val = e.target.value.trim();
+            const exists = availableIngredients.some(i => i.name.toLowerCase() === val.toLowerCase());
+            if (exists) {
+                addIngredientConfig();
+            } else {
+                // If not exists, open modal
+                openNewIngredientModal(val);
+            }
+        }
+    });
+
+    function removeIngredient(index) {
+        currentIngredients.splice(index, 1);
+        renderChips();
+    }
+
+    function renderChips() {
+        const container = document.getElementById('ingredient-chips');
+        container.innerHTML = '';
+
+        currentIngredients.forEach((ing, index) => {
+            const chip = document.createElement('div');
+            chip.className = 'ingredient-chip';
+            chip.innerHTML = `
+                <span>${ing}</span>
+                <span class="remove-chip" onclick="removeIngredient(${index})">&times;</span>
+            `;
+            container.appendChild(chip);
+        });
+    }
+
+    // API Calls
+    async function saveDish(event) {
+        event.preventDefault();
+
+        const name = document.getElementById('dish-name').value.trim();
+        const id = document.getElementById('dish-id').value;
+
+        if (!name) {
+            alert('Le nom du plat est requis.');
+            return;
+        }
+
+        const endpoint = isEditing ? '/api/dishes/update' : '/api/dishes/add';
+        const payload = {
+            id: id,
+            name: name,
+            ingredients: currentIngredients,
+            new_ingredients_details: newIngredientsDetails
+        };
+
+        try {
+            const response = await fetch(endpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                closeDishModal();
+                window.location.reload(); // Reload to show changes
+            } else {
+                alert('Erreur: ' + (result.message || 'Une erreur est survenue.'));
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Une erreur est survenue lors de la sauvegarde.');
+        }
+    }
+
+    async function deleteDish() {
+        if (!confirm('Êtes-vous sûr de vouloir supprimer ce plat ?')) return;
+
+        const id = document.getElementById('dish-id').value;
+
+        try {
+            const response = await fetch('/api/dishes/delete', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ id: id })
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                closeDishModal();
+                window.location.reload();
+            } else {
+                alert('Erreur: ' + (result.message || 'Impossible de supprimer.'));
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Une erreur est survenue lors de la suppression.');
+        }
+    }
+
+    // Close modal when clicking outside
+    window.onclick = function (event) {
+        const dishModal = document.getElementById('dish-modal');
+        const newIngModal = document.getElementById('new-ingredient-modal');
+        if (event.target == dishModal) {
+            closeDishModal();
+        }
+        if (event.target == newIngModal) {
+            closeNewIngredientModal();
+        }
+    }
+</script>
+{% endblock %}

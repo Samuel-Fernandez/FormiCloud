@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+
+{% block title %}Liste de Courses - FormiMarket{% endblock %}
+
+{% block content %}
+<div class="shopping-list-container">
+    <!-- Market Mode & Total Price Control Bar -->
+    <div class="controls-bar">
+        <label class="market-mode-toggle">
+            <input type="checkbox" id="market-mode-checkbox">
+            <span>Market Mode</span>
+        </label>
+        <div class="total-price-display">
+            Total: <span id="total-price">0.00</span> CHF
+        </div>
+    </div>
+
+    <h2>Liste de Courses</h2>
+
+    <!-- Add Ingredient Form -->
+    <form action="{{ url_for('shopping_list') }}" method="POST" class="add-ingredient-form">
+        <div class="form-group">
+            <input type="text" name="name" placeholder="Nom de l'ingrédient" required class="form-input">
+        </div>
+        <div class="form-group category-input-wrapper">
+            <input type="text" name="category" placeholder="Catégorie (ex. Fruits)" required
+                class="form-input category-input" id="category-input" autocomplete="off">
+            <i class="fas fa-tag category-icon"></i>
+            <ul id="category-dropdown" class="custom-dropdown"></ul>
+        </div>
+        <div class="form-group">
+            <input type="number" step="0.01" name="price" placeholder="Prix (Facultatif)" class="form-input">
+        </div>
+        <button type="submit" class="btn-add"><i class="fas fa-plus"></i> Ajouter</button>
+    </form>
+
+    <!-- Ingredients List -->
+    <div id="ingredients-list">
+        {% for category, ingredients in grouped_ingredients.items() %}
+        <div class="category-group" data-category="{{ category }}">
+            <h3 class="category-title">{{ category }}</h3>
+            <div class="ingredient-grid">
+                {% for ingredient in ingredients %}
+                <div class="ingredient-item {% if ingredient.checked %}checked{% endif %}">
+                    <label class="checkbox-container">
+                        <input type="checkbox" data-name="{{ ingredient.name }}"
+                            data-price="{{ ingredient.price if ingredient.price else 0 }}" {% if ingredient.checked
+                            %}checked{% endif %} onchange="toggleIngredient(this)">
+                        <span class="checkmark"></span>
+
+                        <div class="ingredient-info">
+                            <span class="ingredient-name">{{ ingredient.name }}</span>
+                            {% if ingredient.price %}
+                            <span class="ingredient-price">{{ ingredient.price }}€</span>
+                            {% endif %}
+                        </div>
+                    </label>
+
+                    <button type="button" class="btn-edit-item"
+                        onclick='openEditModal({{ ingredient.name|tojson }}, {{ category|tojson }}, {{ (ingredient.price if ingredient.price else "")|tojson }})'>
+                        <i class="fas fa-pencil-alt"></i>
+                    </button>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Hidden data for JS -->
+<script>
+    const availableCategories = {{ sorted_categories| tojson }};
+</script>
+
+<!-- Edit Modal -->
+<div id="edit-modal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal" onclick="closeEditModal()">&times;</span>
+        <h3>Modifier l'ingrédient</h3>
+        <form id="edit-form" onsubmit="saveEdit(event)">
+            <input type="hidden" id="edit-original-name">
+            <div class="form-group">
+                <label for="edit-name">Nom</label>
+                <input type="text" id="edit-name" class="form-input" required>
+            </div>
+            <div class="form-group">
+                <label for="edit-category">Catégorie</label>
+                <input type="text" id="edit-category" list="category-list" class="form-input" required>
+            </div>
+            <div class="form-group">
+                <label for="edit-price">Prix</label>
+                <input type="number" step="0.01" id="edit-price" class="form-input">
+            </div>
+            <div class="modal-actions">
+                <button type="submit" class="btn-save">Enregistrer</button>
+                <button type="button" class="btn-delete-modal" onclick="deleteFromModal()">
+                    <i class="fas fa-trash"></i> Supprimer
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/shopping_list.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,279 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="week-nav">
+  <a class="nav-btn" href="/calendar/{{ prev_week_iso }}">&larr; Semaine précédente</a>
+  <div class="week-title">
+    Semaine du {{ week.week_start.strftime("%d.%m.%Y") }} au {{ week.week_end.strftime("%d.%m.%Y") }}
+    {% if week.week_start.isoformat() != today_week_iso %}
+      &middot; <a href="/calendar/{{ today_week_iso }}" style="font-size:0.75rem;">revenir à aujourd'hui</a>
+    {% endif %}
+  </div>
+  <a class="nav-btn" href="/calendar/{{ next_week_iso }}">Semaine suivante &rarr;</a>
+</div>
+
+<div class="balance-banner">
+  <div class="metric">
+    <span class="label">Revenus</span>
+    <span class="value positive">+{{ "%.2f"|format(week.total_income) }} CHF</span>
+  </div>
+  <div class="metric">
+    <span class="label">Dépenses</span>
+    <span class="value negative">-{{ "%.2f"|format(week.total_expense) }} CHF</span>
+  </div>
+  <div class="metric">
+    <span class="label">Solde calculé</span>
+    <span class="value {{ 'positive' if week.computed_balance >= 0 else 'negative' }}">
+      {{ "%.2f"|format(week.computed_balance) }} CHF
+    </span>
+  </div>
+  {% if week.corrected_balance is not none %}
+  <div class="metric">
+    <span class="label">Solde corrigé</span>
+    <span class="value {{ 'positive' if week.corrected_balance >= 0 else 'negative' }}">
+      {{ "%.2f"|format(week.corrected_balance) }} CHF
+    </span>
+  </div>
+  {% endif %}
+  {% if week.final_balance < 0 %}
+  <span class="warning-flag">Solde négatif</span>
+  {% endif %}
+  <button type="button" class="link-btn" data-open-dialog="dialog-correction">Corriger le solde</button>
+</div>
+
+<div class="days-grid">
+  {% for day, occs in week.days.items() %}
+  <div class="day-card">
+    <div class="day-label">
+      {{ day.strftime("%a %d.%m") }}
+      <button type="button" class="add-day-btn" data-open-dialog="dialog-day-{{ day.isoformat() }}" title="Ajouter une dépense/un revenu ce jour">+</button>
+    </div>
+    {% for o in occs %}
+    <div class="entry">
+      <span>{{ o.name }}{% if o.source == "recurring" %} <em style="color: var(--ink-soft); font-style: normal;">(récurrent)</em>{% endif %}</span>
+      <span class="amount {{ 'income' if o.entry_type.value == 'income' else 'expense' }}">
+        {{ '+' if o.entry_type.value == 'income' else '-' }}{{ "%.2f"|format(o.amount) }}
+      </span>
+      {% if o.source == "oneoff" %}
+      <form method="post" action="/oneoff/{{ o.entry_id }}/delete/{{ week.week_start.isoformat() }}" style="display:inline;">
+        <button type="submit" class="secondary" title="Supprimer cette entrée">×</button>
+      </form>
+      {% else %}
+      <form method="post" action="/recurring/{{ o.entry_id }}/skip/{{ day.isoformat() }}/{{ week.week_start.isoformat() }}" style="display:inline;">
+        <button type="submit" class="secondary" title="Retirer uniquement cette occurrence">×</button>
+      </form>
+      {% endif %}
+    </div>
+    {% else %}
+    <div class="entry" style="color: var(--ink-soft);">—</div>
+    {% endfor %}
+  </div>
+
+  <dialog id="dialog-day-{{ day.isoformat() }}" class="popup">
+    <form method="post" action="/oneoff/{{ week.week_start.isoformat() }}">
+      <h3>Ajouter le {{ day.strftime("%d.%m.%Y") }}</h3>
+      <input type="hidden" name="entry_date" value="{{ day.isoformat() }}">
+      <div class="field">
+        <label>Nom</label>
+        <input type="text" name="name" required autofocus>
+      </div>
+      <div class="field">
+        <label>Type</label>
+        <select name="entry_type">
+          <option value="expense">Dépense</option>
+          <option value="income">Revenu</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Montant (CHF)</label>
+        <input type="number" step="0.01" name="amount" required>
+      </div>
+      <div class="field">
+        <label>Catégorie</label>
+        <select name="category_id">
+          <option value="">—</option>
+          {% for ct in week.category_totals %}
+          <option value="{{ ct.category.id }}">{{ ct.category.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="dialog-actions">
+        <button type="submit" formmethod="dialog" formnovalidate>Annuler</button>
+        <button type="submit">Ajouter</button>
+      </div>
+    </form>
+  </dialog>
+  {% endfor %}
+</div>
+
+<section class="panel">
+  <h2>Projection budgétaire (6 mois)</h2>
+  {% include "partials/projection.html" %}
+</section>
+
+<section class="panel">
+  <div class="panel-header">
+    <h2>Catégories</h2>
+    <button type="button" class="link-btn" data-open-dialog="dialog-category">+ Nouvelle catégorie</button>
+  </div>
+  {% include "partials/categories_list.html" %}
+</section>
+
+<dialog id="dialog-category" class="popup">
+  <form method="post" action="/categories">
+    <h3>Nouvelle catégorie</h3>
+    <input type="hidden" name="week_start" value="{{ week.week_start.isoformat() }}">
+    <div class="field">
+      <label>Nom</label>
+      <input type="text" name="name" required autofocus>
+    </div>
+    <div class="field">
+      <label>Limite hebdo. (CHF, optionnel)</label>
+      <input type="number" step="0.01" name="weekly_limit">
+    </div>
+    <div class="dialog-actions">
+      <button type="submit" formmethod="dialog" formnovalidate>Annuler</button>
+      <button type="submit">Créer</button>
+    </div>
+  </form>
+</dialog>
+
+<section class="panel">
+  <div class="panel-header">
+    <h2>Dépenses / revenus récurrents</h2>
+    <button type="button" class="link-btn" data-open-dialog="dialog-recurring">+ Nouvelle récurrence</button>
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th>Nom</th>
+        <th>Type</th>
+        <th class="amount">Montant</th>
+        <th>Fréquence</th>
+        <th>Depuis</th>
+        <th>Jusqu'à</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in active_recurring %}
+      <tr>
+        <td>{{ item.name }}</td>
+        <td>{{ "Revenu" if item.entry_type.value == "income" else "Dépense" }}</td>
+        <td class="amount {{ 'income' if item.entry_type.value == 'income' else 'expense' }}">
+          {{ "%.2f"|format(item.amount) }} CHF
+        </td>
+        <td>{{ "Hebdomadaire" if item.frequency.value == "weekly" else "Mensuelle" }}</td>
+        <td>{{ item.start_date.strftime("%d.%m.%Y") }}</td>
+        <td>{{ item.end_date.strftime("%d.%m.%Y") if item.end_date else "—" }}</td>
+        <td style="white-space: nowrap;">
+          <form method="post" action="/recurring/{{ item.id }}/end/{{ week.week_start.isoformat() }}"
+                style="display:inline;"
+                onsubmit="return confirm('Arrêter cette récurrence à partir d\'aujourd\'hui ? L\'historique passé sera conservé.');">
+            <button type="submit" class="secondary" title="N'affecte plus les semaines futures, garde l'historique">Arrêter</button>
+          </form>
+          <form method="post" action="/recurring/{{ item.id }}/delete-all/{{ week.week_start.isoformat() }}"
+                style="display:inline;"
+                onsubmit="return confirm('Supprimer complètement cette récurrence, y compris son historique ? Cette action est irréversible.');">
+            <button type="submit" class="secondary" title="Supprime tout, y compris l'historique — pour corriger une erreur">Supprimer tout</button>
+          </form>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="7" style="color: var(--ink-soft);">Aucune récurrence active.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+
+<dialog id="dialog-recurring" class="popup">
+  <form method="post" action="/recurring/{{ week.week_start.isoformat() }}">
+    <h3>Nouvelle dépense/revenu récurrent</h3>
+    <div class="field">
+      <label>Nom</label>
+      <input type="text" name="name" required autofocus>
+    </div>
+    <div class="field">
+      <label>Type</label>
+      <select name="entry_type">
+        <option value="expense">Dépense</option>
+        <option value="income">Revenu</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Montant (CHF)</label>
+      <input type="number" step="0.01" name="amount" required>
+    </div>
+    <div class="field">
+      <label>Fréquence</label>
+      <select name="frequency">
+        <option value="weekly">Hebdomadaire</option>
+        <option value="monthly">Mensuelle</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Date de début</label>
+      <input type="date" name="start_date" value="{{ week.week_start.isoformat() }}" required>
+    </div>
+    <div class="field">
+      <label>Date de fin (optionnel)</label>
+      <input type="date" name="end_date">
+    </div>
+    <div class="field">
+      <label>Catégorie</label>
+      <select name="category_id">
+        <option value="">—</option>
+        {% for ct in week.category_totals %}
+        <option value="{{ ct.category.id }}">{{ ct.category.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="dialog-actions">
+      <button type="submit" formmethod="dialog" formnovalidate>Annuler</button>
+      <button type="submit">Ajouter</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="dialog-correction" class="popup">
+  <form method="post" action="/calendar/{{ week.week_start.isoformat() }}/correction">
+    <h3>Corriger le solde de cette semaine</h3>
+    <div class="field">
+      <label>Solde corrigé (CHF)</label>
+      <input type="number" step="0.01" name="corrected_balance"
+             value="{{ week.corrected_balance if week.corrected_balance is not none else '' }}" required autofocus>
+    </div>
+    <div class="field">
+      <label>Note</label>
+      <input type="text" name="note" placeholder="Raison de la correction">
+    </div>
+    <div class="dialog-actions">
+      <button type="submit" formmethod="dialog" formnovalidate>Annuler</button>
+      <button type="submit">Enregistrer</button>
+    </div>
+  </form>
+</dialog>
+
+<script>
+  document.querySelectorAll("[data-open-dialog]").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      document.getElementById(btn.dataset.openDialog).showModal();
+    });
+  });
+
+  document.querySelectorAll("dialog.popup").forEach(function (dialog) {
+    dialog.addEventListener("click", function (event) {
+      if (event.target === dialog) {
+        const rect = dialog.getBoundingClientRect();
+        const inside =
+          event.clientX >= rect.left && event.clientX <= rect.right &&
+          event.clientY >= rect.top && event.clientY <= rect.bottom;
+        if (!inside) {
+          dialog.close();
+        }
+      }
+    });
+  });
+</script>
+
+{% endblock %}

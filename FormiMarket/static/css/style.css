@@ -1,0 +1,543 @@
+:root {
+    /* Solarized Light Palette */
+    --base03: #002b36;
+    --base02: #073642;
+    --base01: #586e75;
+    --base00: #657b83;
+    --base0: #839496;
+    --base1: #93a1a1;
+    --base2: #eee8d5;
+    --base3: #fdf6e3;
+    --yellow: #b58900;
+    --orange: #cb4b16;
+    --red: #dc322f;
+    --magenta: #d33682;
+    --violet: #6c71c4;
+    --blue: #268bd2;
+    --cyan: #2aa198;
+    --green: #859900;
+
+    --bg-color: var(--base3);
+    --text-color: var(--base00);
+    --primary-color: var(--orange);
+    /* Warm accent */
+    --secondary-bg: var(--base2);
+    --border-color: var(--base2);
+    --nav-bg: var(--base3);
+    --nav-active: var(--orange);
+}
+
+body {
+    font-family: 'Merriweather', 'Georgia', serif;
+    /* "Literate" style */
+    margin: 0;
+    padding: 0;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    padding-bottom: 70px;
+    /* Space for bottom nav */
+    line-height: 1.6;
+}
+
+/* Header */
+header {
+    background-color: var(--bg-color);
+    padding: 1.5rem 1rem;
+    text-align: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+header h1 {
+    margin: 0;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--base01);
+    letter-spacing: -0.5px;
+}
+
+/* Main Content */
+main {
+    padding: 1rem;
+    max-width: 600px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: center;
+}
+
+/* Schedule Layout */
+.schedule-container {
+    width: 100%;
+    margin-top: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    /* Space between rows */
+}
+
+.day-row {
+    display: flex;
+    align-items: stretch;
+    /* Stretch to same height */
+    min-height: 60px;
+}
+
+.day-label {
+    width: 50px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.1rem;
+    color: var(--base01);
+    /* No border or background, just text floating left */
+}
+
+.day-content {
+    flex-grow: 1;
+    background-color: #fff;
+    /* White card against cream bg */
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    border: 1px solid var(--base2);
+    /* Subtle border using base2 */
+    /* Empty box styling */
+}
+
+/* Bottom Navigation */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: var(--nav-bg);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 15px 0;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+    z-index: 1000;
+}
+
+.nav-item {
+    text-decoration: none;
+    color: var(--base1);
+    /* Muted inactive state */
+    font-size: 1.4rem;
+    padding: 10px;
+    transition: color 0.3s ease;
+}
+
+.nav-item.active {
+    color: var(--nav-active);
+}
+
+.nav-item:hover {
+    color: var(--primary-color);
+}
+
+/* Responsive adjustments */
+@media (min-width: 768px) {
+    main {
+        padding-top: 3rem;
+    }
+
+    header h1 {
+        font-size: 2.2rem;
+    }
+}
+
+/* Shopping List Styles */
+.shopping-list-container {
+    width: 100%;
+}
+
+.shopping-list-container h2 {
+    color: var(--base02);
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+/* Add Ingredient Form */
+.add-ingredient-form {
+    background-color: var(--base3);
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    margin-bottom: 2rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    border: 1px solid var(--base2);
+}
+
+.form-group {
+    flex: 1 1 200px;
+}
+
+.form-input {
+    width: 100%;
+    padding: 0.8rem;
+    border: 1px solid var(--base1);
+    border-radius: 4px;
+    font-size: 1rem;
+    background-color: var(--base3);
+    color: var(--text-color);
+    box-sizing: border-box;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: var(--blue);
+    box-shadow: 0 0 0 2px rgba(38, 139, 210, 0.2);
+}
+
+.btn-add {
+    background-color: var(--green);
+    color: var(--base3);
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 1rem;
+    flex: 0 0 auto;
+    transition: background-color 0.3s;
+}
+
+.btn-add:hover {
+    background-color: #718c00;
+}
+
+.search-bar {
+    margin-bottom: 2rem;
+}
+
+/* Category Groups */
+.category-group {
+    margin-bottom: 2rem;
+}
+
+.category-title {
+    color: var(--orange);
+    border-bottom: 2px solid var(--base2);
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+    font-size: 1.4rem;
+}
+
+/* Ingredient Grid */
+.ingredient-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+}
+
+.ingredient-item {
+    background-color: #fff;
+    padding: 0.8rem;
+    border-radius: 6px;
+    border: 1px solid var(--base2);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: all 0.2s;
+}
+
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    flex-grow: 1;
+    position: relative;
+}
+
+.ingredient-name {
+    margin-left: 0.5rem;
+    font-weight: 500;
+    transition: color 0.2s;
+}
+
+.ingredient-price {
+    margin-left: auto;
+    padding-left: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--base1);
+}
+
+.btn-delete {
+    background: none;
+    border: none;
+    color: var(--red);
+    cursor: pointer;
+    opacity: 0.5;
+    transition: opacity 0.2s;
+    padding: 5px;
+    margin-left: 5px;
+}
+
+.btn-delete:hover {
+    opacity: 1;
+}
+
+/* Checked/Unchecked States per User Request */
+/* Checked: Red Readable */
+.ingredient-item.checked {
+    background-color: var(--base3);
+}
+
+.ingredient-item.checked .ingredient-name {
+    color: var(--red);
+    font-weight: bold;
+}
+
+/* Unchecked: Light Gray */
+.ingredient-item:not(.checked) .ingredient-name {
+    color: var(--base1);
+}
+
+/* Category Input Wrapper */
+.category-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.category-input {
+    padding-right: 2.5rem;
+    /* Space for icon */
+}
+
+.category-icon {
+    position: absolute;
+    right: 10px;
+    color: var(--base1);
+    pointer-events: none;
+}
+
+/* Custom Dropdown */
+.custom-dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background-color: var(--base3);
+    border: 1px solid var(--base2);
+    border-radius: 4px;
+    list-style: none;
+    padding: 0;
+    margin: 4px 0 0;
+    z-index: 10;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.custom-dropdown li {
+    padding: 10px;
+    cursor: pointer;
+    color: var(--text-color);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.custom-dropdown li:last-child {
+    border-bottom: none;
+}
+
+.custom-dropdown li:hover {
+    background-color: var(--base2);
+    color: var(--orange);
+}
+
+/* Make ingredient info non-edit-clickable (just wrapper) */
+.ingredient-info {
+    flex-grow: 1;
+    display: flex;
+    justify-content: space-between;
+    padding: 5px;
+    border-radius: 4px;
+    margin-left: 0.5rem;
+}
+
+/* Edit Button in Item */
+.btn-edit-item {
+    background: none;
+    border: none;
+    color: var(--base1);
+    cursor: pointer;
+    margin-left: 0.5rem;
+    padding: 5px;
+    transition: color 0.2s;
+}
+
+.btn-edit-item:hover {
+    color: var(--blue);
+}
+
+/* Modal Styles */
+
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(2px);
+}
+
+.modal-content {
+    background-color: var(--bg-color);
+    margin: 15% auto;
+    padding: 2rem;
+    border: 1px solid var(--base2);
+    width: 90%;
+    max-width: 400px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    position: relative;
+    animation: fadeIn 0.3s;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.close-modal {
+    color: var(--base1);
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.close-modal:hover,
+.close-modal:focus {
+    color: var(--red);
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.modal h3 {
+    margin-top: 0;
+    color: var(--base02);
+    border-bottom: 1px solid var(--base2);
+    padding-bottom: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 2rem;
+}
+
+.btn-save {
+    background-color: var(--blue);
+    color: white;
+    padding: 0.8rem 1.5rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    flex: 1;
+    margin-right: 1rem;
+}
+
+.btn-save:hover {
+    background-color: #2075b2;
+}
+
+.btn-delete-modal {
+    background-color: transparent;
+    color: var(--red);
+    border: 1px solid var(--red);
+    padding: 0.8rem 1.5rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    flex: 1;
+}
+
+.btn-delete-modal:hover {
+    background-color: var(--red);
+    color: white;
+}
+
+/* Market Mode Controls */
+.controls-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    background-color: var(--base2);
+    padding: 0.8rem;
+    border-radius: 8px;
+    font-weight: bold;
+    color: var(--base02);
+}
+
+.market-mode-toggle {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.market-mode-toggle input {
+    margin-right: 0.5rem;
+    transform: scale(1.2);
+}
+
+.total-price-display {
+    font-size: 1.1rem;
+}
+
+#total-price {
+    color: var(--orange);
+}
+
+/* Market Mode Active State */
+.market-mode .add-ingredient-form {
+    display: none;
+}
+
+.market-mode .ingredient-item:not(.checked) {
+    display: none;
+}
+
+.market-mode .btn-edit-item {
+    display: none !important;
+}
+
+/* Hide empty categories in market mode (if browser supports :has) */
+.market-mode .category-group:not(:has(.ingredient-item.checked)) {
+    display: none;
+}
+
+/* Responsive Grid */
+@media (max-width: 600px) {
+    .ingredient-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .form-group {
+        flex: 1 1 100%;
+    }
+}

@@ -1,0 +1,41 @@
+{% set width = 100 * (projection|length - 1) if projection|length > 1 else 100 %}
+{% set height = 160 %}
+{% set balances = projection|map(attribute="balance")|list %}
+{% set min_bal = ([balances|min, 0]|min) %}
+{% set max_bal = ([balances|max, 0]|max) %}
+{% set span = (max_bal - min_bal) if (max_bal - min_bal) > 0 else 1 %}
+
+{% macro y_for(balance) -%}
+{{ "%.1f"|format(height - ((balance - min_bal) / span * (height - 20)) - 10) }}
+{%- endmacro %}
+
+<svg class="projection-chart" viewBox="0 0 {{ width }} {{ height }}" preserveAspectRatio="none">
+  <line class="zero-line" x1="0" y1="{{ y_for(0) }}" x2="{{ width }}" y2="{{ y_for(0) }}"></line>
+  <polyline class="balance-line" points="
+    {%- for p in projection -%}
+      {{ loop.index0 * 100 }},{{ y_for(p.balance) }}
+    {%- if not loop.last %} {% endif -%}
+    {%- endfor -%}
+  "></polyline>
+</svg>
+<div class="scrollable-table">
+<table>
+  <thead>
+    <tr>
+      <th>Semaine</th>
+      <th class="amount">Net</th>
+      <th class="amount">Solde cumulé</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for p in projection %}
+    {% set risk = 'risk-red' if p.balance < 0 else ('risk-orange' if p.balance <= 500 else ('risk-yellow' if p.balance <= 1000 else 'risk-green')) %}
+    <tr class="{{ risk }}">
+      <td>{{ p.week_start.strftime("%d.%m.%Y") }}</td>
+      <td class="amount {{ 'income' if p.net > 0 else ('expense' if p.net < 0 else '') }}">{{ "%.2f"|format(p.net) }} CHF</td>
+      <td class="amount {{ 'negative' if p.balance < 0 else '' }}">{{ "%.2f"|format(p.balance) }} CHF</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+</div>

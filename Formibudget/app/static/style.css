@@ -1,0 +1,418 @@
+:root {
+  --paper: #f6f2e9;
+  --paper-alt: #efe9db;
+  --ink: #2b2a26;
+  --ink-soft: #6b6659;
+  --line: #d8d0bd;
+  --accent: #3c5a45;
+  --accent-soft: #e2e9de;
+  --warn: #8a4b2b;
+  --warn-soft: #f3e0d0;
+  --income: #3c5a45;
+  --expense: #7a3b2e;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: "Iowan Old Style", "Palatino Linotype", Georgia, "Segoe UI", system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.4;
+}
+
+header.app-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--line);
+  background: var(--paper-alt);
+}
+
+header.app-header h1 {
+  font-size: 1.2rem;
+  margin: 0;
+  letter-spacing: 0.02em;
+}
+
+header.app-header a {
+  color: var(--ink-soft);
+  font-size: 0.85rem;
+  text-decoration: none;
+}
+
+main {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+.week-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.week-nav .week-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.week-nav a.nav-btn {
+  border: 1px solid var(--line);
+  padding: 0.3rem 0.7rem;
+  border-radius: 3px;
+  color: var(--ink);
+  text-decoration: none;
+  background: var(--paper-alt);
+  font-size: 0.85rem;
+}
+
+.week-nav a.nav-btn:hover {
+  background: var(--accent-soft);
+}
+
+.balance-banner {
+  display: flex;
+  gap: 1.5rem;
+  padding: 0.9rem 1.2rem;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--paper-alt);
+  margin-bottom: 1.2rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.balance-banner .metric {
+  display: flex;
+  flex-direction: column;
+}
+
+.balance-banner .metric .label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ink-soft);
+}
+
+.balance-banner .metric .value {
+  font-variant-numeric: tabular-nums;
+  font-size: 1.1rem;
+}
+
+.value.positive { color: var(--income); }
+.value.negative { color: var(--expense); }
+
+.warning-flag {
+  background: var(--warn-soft);
+  color: var(--warn);
+  border: 1px solid var(--warn);
+  padding: 0.2rem 0.5rem;
+  border-radius: 3px;
+  font-size: 0.75rem;
+}
+
+.days-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.6rem;
+  margin-bottom: 1.5rem;
+}
+
+@media (max-width: 800px) {
+  .days-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.day-card {
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: #fffdf7;
+  padding: 0.6rem;
+  min-height: 110px;
+}
+
+.day-card .day-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-bottom: 0.4rem;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 0.3rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+button.add-day-btn {
+  background: transparent;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 50%;
+  width: 1.3rem;
+  height: 1.3rem;
+  line-height: 1;
+  padding: 0;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+button.add-day-btn:hover {
+  background: var(--accent-soft);
+}
+
+.day-card .entry {
+  font-size: 0.82rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.35rem;
+  margin-bottom: 0.25rem;
+}
+
+.day-card .entry > span:first-child {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.day-card .entry button.secondary {
+  padding: 0 0.35rem;
+  line-height: 1.4;
+  font-size: 0.9rem;
+}
+
+.panel-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 0.8rem;
+}
+
+.panel-header h2 {
+  margin: 0;
+}
+
+.link-btn {
+  background: transparent;
+  border: none;
+  color: var(--accent);
+  font-size: 0.8rem;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
+}
+
+.link-btn:hover {
+  opacity: 0.8;
+}
+
+dialog.popup {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--paper);
+  color: var(--ink);
+  padding: 1.2rem 1.4rem;
+  max-width: 420px;
+  width: calc(100% - 2rem);
+}
+
+dialog.popup::backdrop {
+  background: rgba(43, 42, 38, 0.35);
+}
+
+dialog.popup h3 {
+  margin: 0 0 0.9rem 0;
+  font-size: 1rem;
+}
+
+dialog.popup .field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  margin-bottom: 0.7rem;
+}
+
+dialog.popup label {
+  font-size: 0.7rem;
+  color: var(--ink-soft);
+  text-transform: uppercase;
+}
+
+dialog.popup .dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+dialog.popup .dialog-actions button[formmethod="dialog"] {
+  background: transparent;
+  color: var(--ink-soft);
+  border: 1px solid var(--line);
+}
+
+.day-card .entry .amount {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.entry .amount.income { color: var(--income); }
+.entry .amount.expense { color: var(--expense); }
+
+section.panel {
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--paper-alt);
+  padding: 1rem 1.2rem;
+  margin-bottom: 1.2rem;
+}
+
+section.panel h2 {
+  font-size: 0.95rem;
+  margin: 0 0 0.8rem 0;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ink-soft);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+table th, table td {
+  text-align: left;
+  padding: 0.35rem 0.5rem;
+  border-bottom: 1px solid var(--line);
+}
+
+table td.amount, table th.amount {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+form.inline-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: flex-end;
+  margin-top: 0.8rem;
+}
+
+form.inline-form .field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+form.inline-form label {
+  font-size: 0.7rem;
+  color: var(--ink-soft);
+  text-transform: uppercase;
+}
+
+input, select, button, textarea {
+  font-family: inherit;
+  font-size: 0.85rem;
+  padding: 0.35rem 0.5rem;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  background: #fffdf7;
+  color: var(--ink);
+}
+
+button {
+  background: var(--accent);
+  color: #fffdf7;
+  border: 1px solid var(--accent);
+  cursor: pointer;
+}
+
+button:hover {
+  opacity: 0.9;
+}
+
+button.secondary {
+  background: transparent;
+  color: var(--expense);
+  border: 1px solid var(--expense);
+  padding: 0.15rem 0.4rem;
+  font-size: 0.75rem;
+}
+
+.category-limit-bar {
+  height: 5px;
+  background: var(--line);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-top: 0.2rem;
+}
+
+.category-limit-bar .fill {
+  height: 100%;
+  background: var(--accent);
+}
+
+.category-limit-bar .fill.over {
+  background: var(--warn);
+}
+
+tr.risk-red {
+  background: #f4d9d0;
+}
+
+tr.risk-orange {
+  background: #f6e2c8;
+}
+
+tr.risk-yellow {
+  background: #f8edc4;
+}
+
+tr.risk-green {
+  background: #dde8d6;
+}
+
+.scrollable-table {
+  max-height: 280px;
+  overflow-y: auto;
+  margin-top: 0.6rem;
+}
+
+.scrollable-table thead th {
+  position: sticky;
+  top: 0;
+  background: var(--paper-alt);
+}
+
+svg.projection-chart {
+  width: 100%;
+  height: 180px;
+}
+
+svg.projection-chart .balance-line {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 2;
+}
+
+svg.projection-chart .zero-line {
+  stroke: var(--line);
+  stroke-width: 1;
+  stroke-dasharray: 4 3;
+}
+
+svg.projection-chart text {
+  font-size: 9px;
+  fill: var(--ink-soft);
+}
