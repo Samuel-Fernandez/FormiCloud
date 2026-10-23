@@ -7,6 +7,10 @@
         icon: mdi-checkbox-marked-outline
         href: "https://todo.formicloud.duckdns.org"
         description: "Gestionnaire de tâches 📋"
+    - FormiInk:
+        icon: mdi-monitor-dashboard
+        href: "https://ink.formicloud.duckdns.org"
+        description: "Choisir l'écran e-ink 🖥️"
     - FormiFit:
         icon: mdi-weight-lifter
         href: "https://fit.formicloud.duckdns.org/"
