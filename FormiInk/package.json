@@ -1,0 +1,13 @@
+{
+  "name": "formiink",
+  "version": "1.0.0",
+  "description": "FormiInk - Choix de l'écran affiché sur l'écran e-ink",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "pureimage": "^0.4.18"
+  }
+}

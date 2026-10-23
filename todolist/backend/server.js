@@ -366,17 +366,66 @@ app.get('/api/display.png', async (req, res) => {
   }
 });
 
+// ─── Rendu de l'écran todo, utilisé par FormiInk (réseau interne uniquement) ──
+app.get('/api/render/todo.png', async (req, res) => {
+  if (!fontLoaded) return res.status(503).send('Image generation not ready');
+  try {
+    const img = await generateDashboardBitmap();
+    res.setHeader('Content-Type', 'image/png');
+    await PImage.encodePNGToStream(img, res);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Erreur génération image');
+  }
+});
+
+app.get('/api/render/todo.bin', async (req, res) => {
+  if (!fontLoaded) return res.status(503).send('Image generation not ready');
+  try {
+    const img = await generateDashboardBitmap();
+    res.setHeader('Content-Type', 'application/octet-stream');
+    res.send(convertBitmapToEInkBin(img));
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Erreur génération image binaire');
+  }
+});
+
 // ─── GET display bin (E-ink 1-bit buffer) ─────────────────────────────────────
+// L'écran appelle toujours cette URL. FormiInk (INK_URL) choisit ce qui s'affiche ;
+// s'il est arrêté ou en erreur, on retombe sur l'écran todo pour ne jamais laisser l'écran vide.
+const INK_URL = process.env.INK_URL;
+const EINK_BIN_SIZE = (800 * 480) / 8;
+
 app.get('/api/display.bin', async (req, res) => {
+  res.setHeader('Cache-Control', 'no-store');
+
+  if (INK_URL) {
+    try {
+      const inkRes = await fetch(`${INK_URL}/display.bin`, { signal: AbortSignal.timeout(8000) });
+      if (inkRes.ok) {
+        const buffer = Buffer.from(await inkRes.arrayBuffer());
+        if (buffer.length === EINK_BIN_SIZE) {
+          res.setHeader('Content-Type', 'application/octet-stream');
+          return res.send(buffer);
+        }
+        console.error(`FormiInk a renvoyé ${buffer.length} octets au lieu de ${EINK_BIN_SIZE}`);
+      } else {
+        console.error(`FormiInk HTTP ${inkRes.status}`);
+      }
+    } catch (err) {
+      console.error('FormiInk injoignable, secours sur l\'écran todo:', err.message);
+    }
+  }
+
   if (!fontLoaded) {
     return res.status(503).send('Image generation not ready');
   }
 
   try {
     const img = await generateDashboardBitmap();
-    const binBuffer = convertBitmapToEInkBin(img);
     res.setHeader('Content-Type', 'application/octet-stream');
-    res.send(binBuffer);
+    res.send(convertBitmapToEInkBin(img));
   } catch (err) {
     console.error(err);
     res.status(500).send('Erreur génération image binaire');
