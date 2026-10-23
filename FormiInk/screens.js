@@ -143,24 +143,23 @@ async function drawBus(cfg) {
   upcoming.forEach((d, index) => {
     const yTop = startY + index * rowHeight;
     const yCenter = yTop + rowHeight / 2;
-    const minutes = Math.round((d.when.getTime() - now.getTime()) / 60000);
-
-    roundedRect(ctx, 40, yCenter - 16, 100, 32, 6, '#000000');
+    // L'écran ne se rafraîchit que toutes les ~10 min : on affiche des heures (toujours exactes),
+    // pas des « dans N min » qui seraient faux quelques minutes plus tard.
+    roundedRect(ctx, 40, yCenter - 18, 110, 36, 6, '#000000');
     ctx.fillStyle = '#FFFFFF';
-    ctx.font = `14pt '${FONT}'`;
+    ctx.font = `18pt '${FONT}'`;
     ctx.textAlign = 'center';
-    ctx.fillText(minutes <= 0 ? 'Départ' : `${minutes} min`, 90, yCenter + 6);
+    ctx.fillText(clock(d.when), 95, yCenter + 8);
 
     ctx.fillStyle = '#000000';
     ctx.font = `22pt '${FONT}'`;
     ctx.textAlign = 'left';
-    ctx.fillText(clock(d.when), 160, yCenter + 8);
-    ctx.fillText(truncate(d.to, 24), 290, yCenter + 8);
+    ctx.fillText(truncate(d.to, 26), 180, yCenter + 8);
 
     if (d.delay > 0) {
       ctx.font = `16pt '${FONT}'`;
       ctx.textAlign = 'right';
-      ctx.fillText(`+${d.delay} min`, 760, yCenter + 6);
+      ctx.fillText(`retard ${d.delay} min`, 760, yCenter + 6);
     }
 
     if (index < rows - 1) ctx.fillRect(40, yTop + rowHeight - 1, 720, 1);
@@ -173,7 +172,7 @@ async function drawBus(cfg) {
   ctx.textAlign = 'left';
   ctx.fillText('FormiInk · TL', 40, 460);
   ctx.textAlign = 'right';
-  ctx.fillText(`Mis à jour : ${clock(now)}`, 760, 460);
+  ctx.fillText(`Horaires de ${clock(now)}`, 760, 460);
 
   return img;
 }
