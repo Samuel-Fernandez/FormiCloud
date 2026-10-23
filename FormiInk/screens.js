@@ -128,11 +128,12 @@ async function drawBus(cfg) {
   ctx.fillText(truncate(`${stationShort}${bus.destination ? ' > ' + bus.destination : ''}`, 38), 760, 43);
   ctx.fillRect(40, 64, 720, 2);
 
-  // Départs
-  const rows = Math.min(Math.max(parseInt(bus.count, 10) || 6, 1), 6);
-  const rowHeight = 60;
-  const startY = 70;
-  const upcoming = data.departures.filter(d => d.when.getTime() - now.getTime() > -30000).slice(0, rows);
+  // Départs : les lignes se répartissent sur toute la hauteur disponible,
+  // avec des tailles proportionnelles (peu de départs = grand affichage).
+  const maxRows = Math.min(Math.max(parseInt(bus.count, 10) || 6, 1), 6);
+  const upcoming = data.departures.filter(d => d.when.getTime() - now.getTime() > -30000).slice(0, maxRows);
+  const areaTop = 70;
+  const areaHeight = 360;
 
   if (upcoming.length === 0) {
     ctx.textAlign = 'center';
@@ -140,29 +141,46 @@ async function drawBus(cfg) {
     ctx.fillText(data.ok ? 'Aucun départ prévu' : 'Horaires indisponibles', W / 2, 250);
   }
 
+  const rowHeight = areaHeight / Math.max(upcoming.length, 1);
+  const f = Math.min(rowHeight / 60, 1.8);
+  const pillW = 110 * f;
+  const pillH = 36 * f;
+
   upcoming.forEach((d, index) => {
-    const yTop = startY + index * rowHeight;
+    const yTop = areaTop + index * rowHeight;
     const yCenter = yTop + rowHeight / 2;
+
     // L'écran ne se rafraîchit que toutes les ~10 min : on affiche des heures (toujours exactes),
     // pas des « dans N min » qui seraient faux quelques minutes plus tard.
-    roundedRect(ctx, 40, yCenter - 18, 110, 36, 6, '#000000');
+    roundedRect(ctx, 40, yCenter - pillH / 2, pillW, pillH, 6 * f, '#000000');
     ctx.fillStyle = '#FFFFFF';
-    ctx.font = `18pt '${FONT}'`;
+    ctx.font = `${Math.round(18 * f)}pt '${FONT}'`;
     ctx.textAlign = 'center';
-    ctx.fillText(clock(d.when), 95, yCenter + 8);
+    ctx.fillText(clock(d.when), 40 + pillW / 2, yCenter + 8 * f);
 
-    ctx.fillStyle = '#000000';
-    ctx.font = `22pt '${FONT}'`;
-    ctx.textAlign = 'left';
-    ctx.fillText(truncate(d.to, 26), 180, yCenter + 8);
-
+    // Retard (à droite), mesuré d'abord pour savoir quelle largeur reste à la destination
+    const destX = 40 + pillW + 30;
+    let maxDestWidth = 760 - destX;
     if (d.delay > 0) {
-      ctx.font = `16pt '${FONT}'`;
+      ctx.font = `${Math.round(16 * f)}pt '${FONT}'`;
+      const delayText = `retard ${d.delay} min`;
+      maxDestWidth -= ctx.measureText(delayText).width + 20;
+      ctx.fillStyle = '#000000';
       ctx.textAlign = 'right';
-      ctx.fillText(`retard ${d.delay} min`, 760, yCenter + 6);
+      ctx.fillText(delayText, 760, yCenter + 6 * f);
     }
 
-    if (index < rows - 1) ctx.fillRect(40, yTop + rowHeight - 1, 720, 1);
+    ctx.fillStyle = '#000000';
+    ctx.font = `${Math.round(22 * f)}pt '${FONT}'`;
+    ctx.textAlign = 'left';
+    let dest = d.to;
+    while (dest.length > 1 && ctx.measureText(dest).width > maxDestWidth) {
+      dest = dest.slice(0, -1).trimEnd();
+      if (ctx.measureText(dest + '...').width <= maxDestWidth) { dest += '...'; break; }
+    }
+    ctx.fillText(dest, destX, yCenter + 8 * f);
+
+    if (index < upcoming.length - 1) ctx.fillRect(40, yTop + rowHeight - 1, 720, 1);
   });
 
   // Pied de page
@@ -170,7 +188,7 @@ async function drawBus(cfg) {
   ctx.fillRect(40, 430, 720, 2);
   ctx.font = `14pt '${FONT}'`;
   ctx.textAlign = 'left';
-  ctx.fillText('FormiInk · TL', 40, 460);
+  ctx.fillText('FormiInk · TL · heures réelles, retards inclus', 40, 460);
   ctx.textAlign = 'right';
   ctx.fillText(`Horaires de ${clock(now)}`, 760, 460);
 
