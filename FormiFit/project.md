@@ -4,8 +4,9 @@
 Application web responsive (adaptée pour Smartphone et Ordinateur) permettant de calculer, suivre et gérer les apports nutritionnels et les besoins caloriques journaliers et hebdomadaires.
 
 ## Fonctionnalités Clés
-- **Gestion Multi-profils** : Possibilité de créer et de gérer plusieurs profils d'utilisateurs.
-- **Base de Données Commune** : Une base de données partagée contenant les aliments, ingrédients et repas.
+- **Gestion Multi-profils** : Chaque profil est protégé par un code PIN (`python set_pin.py <id>` pour le créer ou le réinitialiser).
+- **Base de Données Privée** : Chaque compte a sa propre base d'aliments, d'ingrédients et de repas.
+- **Cholestérol & LDL** : Suivi du cholestérol et des graisses saturées, avec une tendance LDL estimée depuis les repas (pas une mesure).
 - **Recherche et Ajout** : Recherche intuitive dans la base de données pour ajouter des éléments consommés dans la journée.
 - **Assistant IA (Génération d'Aliments)** : Interface de discussion avec une IA permettant de décrire un nouveau repas ou ingrédient. L'IA générera automatiquement les valeurs nutritionnelles et les l'ajoutera à la base de données (via un retour de données au format JSON).
 

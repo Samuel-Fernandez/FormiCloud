@@ -21,7 +21,9 @@
                 <button class="btn-primary" style="margin-top:0;" onclick="openModal('db-modal')">+ Depuis la Base</button>
                 <button class="btn-primary ai-btn" style="margin-top:0;" onclick="openModal('chat-modal')">✨ IA Assistant</button>
                 <a href="{{ url_for('settings', username=user.id) }}" class="btn-secondary" style="margin-top:0;">⚙️ Paramètres</a>
-                <a href="{{ url_for('index') }}" class="btn-secondary">Changer de profil</a>
+                <form method="POST" action="{{ url_for('logout') }}" style="display:contents;">
+                    <button type="submit" class="btn-secondary" style="margin-top:0;">Changer de profil</button>
+                </form>
             </div>
         </header>
         
@@ -134,6 +136,39 @@
                         <div class="progress-fill fill-vit-c" id="bar-vit_c" style="width: 0;" data-width="{{ pct.vit_c }}"></div>
                     </div>
                 </div>
+            </div>
+
+            <!-- Cholestérol & LDL -->
+            <div class="section-title" style="margin-top: 3rem;">
+                <h3>Cholestérol & LDL</h3>
+            </div>
+            <div class="micros-grid">
+                <div class="progress-card glass">
+                    <div class="progress-header">
+                        <span class="progress-label">Graisses saturées</span>
+                        <span class="progress-value" id="val-sat_fat">{{ intake.sat_fat }} / {{ targets.sat_fat }} g</span>
+                    </div>
+                    <div class="progress-track track-small">
+                        <div class="progress-fill fill-limit" id="bar-sat_fat" style="width: 0;" data-width="{{ pct.sat_fat }}"></div>
+                    </div>
+                </div>
+                <div class="progress-card glass">
+                    <div class="progress-header">
+                        <span class="progress-label">Cholestérol</span>
+                        <span class="progress-value" id="val-cholesterol">{{ intake.cholesterol }} / {{ targets.cholesterol }} mg</span>
+                    </div>
+                    <div class="progress-track track-small">
+                        <div class="progress-fill fill-limit" id="bar-cholesterol" style="width: 0;" data-width="{{ pct.cholesterol }}"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="progress-card glass" style="margin-top: 0.5rem;">
+                <div class="progress-header">
+                    <span class="progress-label">Tendance LDL (estimation)</span>
+                    <span class="ldl-badge" id="ldl-badge"></span>
+                </div>
+                <p id="ldl-detail" style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 0.5rem;"></p>
+                <p style="color: var(--text-secondary); font-size: 0.75rem; margin-top: 0.25rem;">Repère déduit de vos repas. Seule une prise de sang mesure le LDL.</p>
             </div>
 
             <!-- Graphique 7 jours -->
@@ -321,7 +356,7 @@
             <!-- VUE LISTE -->
             <div id="manage-db-list-view" style="display: flex; flex-direction: column; height: 100%; overflow: hidden;">
                 <h2>Gestion de la base de données</h2>
-                <p style="color: var(--text-secondary); margin-bottom: 1rem;">Ajoutez, modifiez ou supprimez des éléments de la base globale.</p>
+                <p style="color: var(--text-secondary); margin-bottom: 1rem;">Ajoutez, modifiez ou supprimez des éléments de votre base personnelle.</p>
                 
                 <p id="manage-db-error" style="color: #ef4444; font-size: 0.9rem; display: none; margin-bottom: 0.5rem;"></p>
                 
@@ -383,6 +418,14 @@
                         <input type="number" id="form-fat" class="form-control" step="any" value="0">
                     </div>
                     <div class="form-group">
+                        <label for="form-sat_fat">Graisses saturées (g)</label>
+                        <input type="number" id="form-sat_fat" class="form-control" step="any" min="0" placeholder="Inconnu">
+                    </div>
+                    <div class="form-group">
+                        <label for="form-cholesterol">Cholestérol (mg)</label>
+                        <input type="number" id="form-cholesterol" class="form-control" step="any" min="0" placeholder="Inconnu">
+                    </div>
+                    <div class="form-group">
                         <label for="form-fiber">Fibres (g)</label>
                         <input type="number" id="form-fiber" class="form-control" step="any" value="0">
                     </div>
@@ -409,6 +452,30 @@
     </div>
 
     <script>
+        // Session expirée ou profil changé dans un autre onglet : retour à la connexion.
+        const nativeFetch = window.fetch.bind(window);
+        window.fetch = async (...args) => {
+            const res = await nativeFetch(...args);
+            if (res.status === 401 || res.status === 403) location.href = '/';
+            return res;
+        };
+
+        const ldlByView = {daily: {{ ldl_daily | tojson | safe }}, weekly: {{ ldl_weekly | tojson | safe }}};
+        const LIMIT_KEYS = ['sat_fat', 'cholesterol'];
+
+        function renderLipids(view) {
+            const intake = view === 'daily' ? dailyIntake : weeklyIntake;
+            const limits = view === 'daily' ? dailyTargets : weeklyTargets;
+            LIMIT_KEYS.forEach(key => {
+                document.getElementById(`bar-${key}`).classList.toggle('fill-over', (intake[key] || 0) > limits[key]);
+            });
+            const ldl = ldlByView[view];
+            const badge = document.getElementById('ldl-badge');
+            badge.textContent = ldl.label;
+            badge.className = `ldl-badge ldl-${ldl.level}`;
+            document.getElementById('ldl-detail').textContent = ldl.detail;
+        }
+
         let dailyIntake = {{ intake | tojson | safe }};
         let dailyTargets = {{ targets | tojson | safe }};
         let weeklyIntake = {{ weekly_intake | tojson | safe }};
@@ -448,14 +515,15 @@
                 
                 const valElem = document.getElementById(`val-${key}`);
                 if (valElem) {
-                    valElem.innerText = `${currentVal} / ${targetVal} ${key === 'kcal' ? 'kcal' : (['calcium','iron','vit_c'].includes(key) ? 'mg' : 'g')}`;
+                    valElem.innerText = `${currentVal} / ${targetVal} ${key === 'kcal' ? 'kcal' : (['calcium','iron','vit_c','cholesterol'].includes(key) ? 'mg' : 'g')}`;
                 }
-                
+
                 const barElem = document.getElementById(`bar-${key}`);
                 if (barElem) {
                     barElem.style.width = visualPct + '%';
                 }
             }
+            renderLipids(view);
         }
 
         function selectDbItem(element) {
@@ -466,6 +534,7 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
+            renderLipids('daily');
             const fills = document.querySelectorAll('.progress-fill');
             setTimeout(() => {
                 fills.forEach(fill => {
@@ -676,7 +745,7 @@
             const data = await res.json();
             if(data.success) {
                 closeModal('ai-validation-modal');
-                alert("Sauvegardé avec succès dans la base de données globale !");
+                alert("Sauvegardé avec succès dans votre base de données !");
                 location.reload();
             }
         }
@@ -911,6 +980,8 @@
             document.getElementById('form-protein').value = 0;
             document.getElementById('form-carbs').value = 0;
             document.getElementById('form-fat').value = 0;
+            document.getElementById('form-sat_fat').value = '';
+            document.getElementById('form-cholesterol').value = '';
             document.getElementById('form-fiber').value = 0;
             document.getElementById('form-calcium').value = 0;
             document.getElementById('form-iron').value = 0;
@@ -935,6 +1006,8 @@
             document.getElementById('form-protein').value = item.protein || 0;
             document.getElementById('form-carbs').value = item.carbs || 0;
             document.getElementById('form-fat').value = item.fat || 0;
+            document.getElementById('form-sat_fat').value = item.sat_fat ?? '';
+            document.getElementById('form-cholesterol').value = item.cholesterol ?? '';
             document.getElementById('form-fiber').value = item.fiber || 0;
             document.getElementById('form-calcium').value = item.calcium || 0;
             document.getElementById('form-iron').value = item.iron || 0;
@@ -1016,6 +1089,8 @@
                 protein: type === 'meal' ? (parseFloat(document.getElementById('form-protein').value) || 0) : 0,
                 carbs: type === 'meal' ? (parseFloat(document.getElementById('form-carbs').value) || 0) : 0,
                 fat: type === 'meal' ? (parseFloat(document.getElementById('form-fat').value) || 0) : 0,
+                sat_fat: type === 'meal' ? document.getElementById('form-sat_fat').value : '',
+                cholesterol: type === 'meal' ? document.getElementById('form-cholesterol').value : '',
                 fiber: type === 'meal' ? (parseFloat(document.getElementById('form-fiber').value) || 0) : 0,
                 calcium: type === 'meal' ? (parseFloat(document.getElementById('form-calcium').value) || 0) : 0,
                 iron: type === 'meal' ? (parseFloat(document.getElementById('form-iron').value) || 0) : 0,

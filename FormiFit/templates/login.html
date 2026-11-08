@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FormiFit - Connexion</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="profile-selection container">
+        <div class="settings-card glass" style="max-width: 400px; margin: 0 auto;">
+            <div class="avatar">{{ profile.avatar }}</div>
+            <h2>{{ profile.name }}</h2>
+            {% if no_pin %}
+            <p>Aucun code PIN n'est encore défini pour ce profil. Demandez à l'administrateur de FormiCloud d'en créer un.</p>
+            {% else %}
+            {% if error %}<p style="color: #ef4444;" role="alert">{{ error }}</p>{% endif %}
+            <form method="POST">
+                <div class="form-group">
+                    <label for="pin">Code PIN</label>
+                    <input type="password" class="form-control" id="pin" name="pin" inputmode="numeric" pattern="[0-9]{4,6}" autocomplete="current-password" required autofocus>
+                </div>
+                <button type="submit" class="btn-primary">Se connecter</button>
+            </form>
+            {% endif %}
+            <a href="{{ url_for('index') }}" class="btn-secondary">Changer de profil</a>
+        </div>
+    </div>
+</body>
+</html>

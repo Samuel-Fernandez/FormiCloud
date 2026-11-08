@@ -14,7 +14,7 @@
         
         <div class="profiles-grid">
             {% for profile in profiles %}
-            <a href="{{ url_for('dashboard', username=profile.id) }}" class="profile-card glass">
+            <a href="{{ url_for('login', profile_id=profile.id) }}" class="profile-card glass">
                 <div class="avatar">{{ profile.avatar }}</div>
                 <div class="profile-name">{{ profile.name }}</div>
             </a>

@@ -306,6 +306,19 @@ body {
 .fill-calcium { background: #64748b; }
 .fill-iron { background: #dc2626; }
 .fill-vit-c { background: #f59e0b; }
+.fill-limit { background: #8b5cf6; }
+.fill-over { background: #ef4444; }
+
+.ldl-badge {
+    padding: 0.15rem 0.6rem;
+    border-radius: 99px;
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+.ldl-unknown { background: rgba(148, 163, 184, 0.2); color: #475569; }
+.ldl-favorable { background: rgba(34, 197, 94, 0.2); color: #15803d; }
+.ldl-moderate { background: rgba(245, 158, 11, 0.2); color: #b45309; }
+.ldl-watch { background: rgba(239, 68, 68, 0.2); color: #b91c1c; }
 
 .macros-grid {
     display: grid;

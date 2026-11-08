@@ -79,5 +79,7 @@ services:
       - "172.17.0.1:1004:1004"
     environment:
       - GOOGLE_API_KEY=${GOOGLE_API_KEY:?GOOGLE_API_KEY manquant dans .env}
+      - GROQ_API_KEY=${GROQ_API_KEY:-}
+      - FORMIFIT_SECRET_KEY=${FORMIFIT_SECRET_KEY:?FORMIFIT_SECRET_KEY manquant dans .env}
     volumes:
       - ./FormiFit/data:/app/data

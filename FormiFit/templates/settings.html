@@ -63,6 +63,35 @@
                 <button type="submit" class="btn-primary">Enregistrer mes paramètres</button>
             </form>
         </div>
+
+        <div class="settings-card glass" id="pin" style="margin-top: 1.5rem;">
+            <h2>Code PIN</h2>
+            {% set pin_messages = {
+                'ok': 'Code PIN modifié.',
+                'wrong': 'Code PIN actuel incorrect.',
+                'locked': "Trop d'essais. Réessayez dans 15 minutes.",
+                'invalid': 'Le nouveau PIN doit contenir 4 à 6 chiffres.',
+                'mismatch': 'Les deux nouveaux PIN sont différents.'
+            } %}
+            {% if pin_status in pin_messages %}
+            <p role="status" style="color: {{ '#22c55e' if pin_status == 'ok' else '#ef4444' }};">{{ pin_messages[pin_status] }}</p>
+            {% endif %}
+            <form method="POST" action="{{ url_for('change_pin', username=user.id) }}">
+                <div class="form-group">
+                    <label for="current_pin">PIN actuel</label>
+                    <input type="password" class="form-control" id="current_pin" name="current_pin" inputmode="numeric" autocomplete="current-password" required>
+                </div>
+                <div class="form-group">
+                    <label for="new_pin">Nouveau PIN (4 à 6 chiffres)</label>
+                    <input type="password" class="form-control" id="new_pin" name="new_pin" inputmode="numeric" pattern="[0-9]{4,6}" autocomplete="new-password" required>
+                </div>
+                <div class="form-group">
+                    <label for="confirm_pin">Confirmer le nouveau PIN</label>
+                    <input type="password" class="form-control" id="confirm_pin" name="confirm_pin" inputmode="numeric" pattern="[0-9]{4,6}" autocomplete="new-password" required>
+                </div>
+                <button type="submit" class="btn-primary">Changer le PIN</button>
+            </form>
+        </div>
     </div>
 </body>
 </html>
